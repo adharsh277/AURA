@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F7931A;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="#0A0A0F"/>
+  
+  <!-- Outer Ring -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#goldGradient)" stroke-width="4" opacity="0.6"/>
+  
+  <!-- Inner Hexagon representing blockchain -->
+  <polygon points="256,80 400,168 400,344 256,432 112,344 112,168" fill="none" stroke="url(#goldGradient)" stroke-width="3" filter="url(#glow)"/>
+  
+  <!-- Central A letter -->
+  <text x="256" y="300" font-family="Inter, Arial, sans-serif" font-size="200" font-weight="700" fill="url(#goldGradient)" text-anchor="middle" filter="url(#glow)">A</text>
+  
+  <!-- Node dots on hexagon vertices -->
+  <circle cx="256" cy="80" r="12" fill="#FFD700"/>
+  <circle cx="400" cy="168" r="12" fill="#F7931A"/>
+  <circle cx="400" cy="344" r="12" fill="#FFD700"/>
+  <circle cx="256" cy="432" r="12" fill="#F7931A"/>
+  <circle cx="112" cy="344" r="12" fill="#FFD700"/>
+  <circle cx="112" cy="168" r="12" fill="#F7931A"/>
+</svg>
