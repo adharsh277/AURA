@@ -161,4 +161,104 @@ router.get('/network', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Prepare transaction for wallet signing
+ * POST /api/hedera/prepare-transaction
+ * 
+ * This endpoint prepares transaction data that will be signed by the user's wallet.
+ * The AI suggests actions, but the wallet must sign for execution.
+ */
+router.post('/prepare-transaction', async (req: Request, res: Response) => {
+  try {
+    const { accountId, type, description, amount, recipient, tokenId } = req.body;
+
+    if (!accountId || !type) {
+      return res.status(400).json({ error: 'Missing required fields: accountId, type' });
+    }
+
+    // Validate transaction type
+    const validTypes = ['transfer', 'stake', 'swap', 'rebalance', 'protect'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ error: `Invalid transaction type. Must be one of: ${validTypes.join(', ')}` });
+    }
+
+    // In production, this would create actual transaction bytes using Hedera SDK
+    // For demo, we return transaction metadata that would be sent to the wallet
+    const transactionId = `${accountId}@${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 1000000000)}`;
+    
+    const transactionData = {
+      transactionId,
+      type,
+      description: description || `${type} transaction`,
+      from: accountId,
+      to: recipient || '0.0.98', // Default treasury for demo
+      amount: amount || 0,
+      tokenId: tokenId || null,
+      network: process.env.HEDERA_NETWORK || 'testnet',
+      validStart: new Date().toISOString(),
+      validDuration: 120, // seconds
+      // In production: transactionBytes would be the serialized transaction
+      transactionBytes: Buffer.from(JSON.stringify({
+        type,
+        from: accountId,
+        to: recipient || '0.0.98',
+        amount
+      })).toString('base64')
+    };
+
+    res.json({
+      success: true,
+      transaction: transactionData,
+      message: 'Transaction prepared. Please sign with your wallet.',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error preparing transaction:', error);
+    res.status(500).json({ error: 'Failed to prepare transaction' });
+  }
+});
+
+/**
+ * Execute AI-recommended action
+ * POST /api/hedera/execute-ai-action
+ * 
+ * This endpoint receives signed transaction data from the wallet
+ * and submits it to the Hedera network.
+ */
+router.post('/execute-ai-action', async (req: Request, res: Response) => {
+  try {
+    const { accountId, actionType, signedTransaction, transactionId } = req.body;
+
+    if (!accountId || !actionType) {
+      return res.status(400).json({ error: 'Missing required fields: accountId, actionType' });
+    }
+
+    // In production, this would submit the signed transaction to Hedera
+    // For demo, we simulate successful execution
+    
+    // Simulate processing time
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Generate transaction result
+    const result = {
+      success: true,
+      transactionId: transactionId || `${accountId}@${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 1000000000)}`,
+      actionType,
+      status: 'SUCCESS',
+      explorerUrl: `https://hashscan.io/${process.env.HEDERA_NETWORK || 'testnet'}/transaction/${transactionId}`,
+      executedAt: new Date().toISOString(),
+      details: {
+        accountId,
+        actionType,
+        network: process.env.HEDERA_NETWORK || 'testnet'
+      }
+    };
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error executing AI action:', error);
+    res.status(500).json({ error: 'Failed to execute action' });
+  }
+});
+
 export default router;
