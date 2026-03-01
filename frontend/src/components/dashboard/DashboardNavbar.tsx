@@ -15,20 +15,25 @@ import {
   Settings,
   LogOut,
   Home,
-  ArrowLeft
+  ArrowLeft,
+  ExternalLink,
+  Copy,
+  Check
 } from 'lucide-react'
 
 interface DashboardNavbarProps {
   isConnected: boolean
   walletAddress: string
+  walletBalance?: number
   onConnect: () => void
   onDisconnect: () => void
 }
 
-export default function DashboardNavbar({ isConnected, walletAddress, onConnect, onDisconnect }: DashboardNavbarProps) {
+export default function DashboardNavbar({ isConnected, walletAddress, walletBalance, onConnect, onDisconnect }: DashboardNavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -40,6 +45,22 @@ export default function DashboardNavbar({ isConnected, walletAddress, onConnect,
   const formatAddress = (address: string) => {
     if (!address) return ''
     return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
+  const formatBalance = (balance?: number) => {
+    if (balance === undefined || balance === null) return '...'
+    return balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }
+
+  const copyAddress = () => {
+    navigator.clipboard.writeText(walletAddress)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const openExplorer = () => {
+    window.open(`https://hashscan.io/testnet/account/${walletAddress}`, '_blank')
+    setIsDropdownOpen(false)
   }
 
   return (
@@ -131,9 +152,16 @@ export default function DashboardNavbar({ isConnected, walletAddress, onConnect,
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="w-2 h-2 rounded-full bg-gold-400 animate-pulse" />
-                    <Wallet className="w-4 h-4 text-gold-400" />
-                    <span className="text-sm font-medium">{formatAddress(walletAddress)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">H</span>
+                      </div>
+                      <div className="hidden sm:flex flex-col items-start">
+                        <span className="text-xs text-dark-400">HashPack</span>
+                        <span className="text-sm font-medium text-gold-400">{formatBalance(walletBalance)} HBAR</span>
+                      </div>
+                    </div>
+                    <span className="text-sm font-medium text-dark-300 hidden lg:inline">{formatAddress(walletAddress)}</span>
                     <ChevronDown className={`w-4 h-4 text-dark-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                   </motion.button>
                   
@@ -142,22 +170,60 @@ export default function DashboardNavbar({ isConnected, walletAddress, onConnect,
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="absolute right-0 top-full mt-2 w-48 py-2 rounded-xl bg-dark-900 border border-gold-400/10 shadow-xl"
+                      className="absolute right-0 top-full mt-2 w-64 py-2 rounded-xl bg-dark-900 border border-gold-400/10 shadow-xl"
                     >
-                      <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-dark-300 hover:text-white hover:bg-white/5 transition-colors">
-                        <Settings className="w-4 h-4" />
-                        Settings
-                      </button>
-                      <button 
-                        onClick={() => {
-                          onDisconnect()
-                          setIsDropdownOpen(false)
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-400/10 transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Disconnect
-                      </button>
+                      {/* Wallet Info Header */}
+                      <div className="px-4 py-3 border-b border-dark-700">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
+                            <span className="text-white text-lg font-bold">H</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-white">HashPack</p>
+                            <p className="text-xs text-dark-400">{walletAddress}</p>
+                          </div>
+                        </div>
+                        <div className="mt-3 p-2 rounded-lg bg-dark-800 flex items-center justify-between">
+                          <span className="text-sm text-dark-400">Balance</span>
+                          <span className="text-sm font-medium text-gold-400">{formatBalance(walletBalance)} HBAR</span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="py-1">
+                        <button 
+                          onClick={copyAddress}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-dark-300 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                          {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                          {copied ? 'Copied!' : 'Copy Address'}
+                        </button>
+                        <button 
+                          onClick={openExplorer}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-dark-300 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          View on Explorer
+                        </button>
+                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-dark-300 hover:text-white hover:bg-white/5 transition-colors">
+                          <Settings className="w-4 h-4" />
+                          Settings
+                        </button>
+                      </div>
+
+                      {/* Disconnect */}
+                      <div className="border-t border-dark-700 pt-1 mt-1">
+                        <button 
+                          onClick={() => {
+                            onDisconnect()
+                            setIsDropdownOpen(false)
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-400/10 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Disconnect Wallet
+                        </button>
+                      </div>
                     </motion.div>
                   )}
                 </div>

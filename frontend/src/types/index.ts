@@ -90,7 +90,55 @@ export interface WalletConnection {
   isConnected: boolean
   accountId: string
   network: 'mainnet' | 'testnet'
-  provider: 'hashpack' | 'metamask' | 'walletconnect'
+  provider: 'hashpack' | 'metamask' | 'xverse'
+  publicKey?: string
+  balance?: {
+    hbar: number
+    tokens: TokenBalance[]
+  }
+}
+
+export interface TokenBalance {
+  tokenId: string
+  symbol: string
+  name: string
+  balance: number
+  decimals: number
+}
+
+// Transaction Types
+export interface TransactionRequest {
+  type: 'transfer' | 'stake' | 'swap' | 'contract'
+  description: string
+  data: {
+    recipient?: string
+    amount?: number
+    tokenId?: string
+    contractId?: string
+    functionName?: string
+    params?: any[]
+  }
+}
+
+export interface TransactionResult {
+  success: boolean
+  transactionId?: string
+  explorerUrl?: string
+  error?: string
+}
+
+// AI Suggestion Types
+export interface AISuggestion {
+  id: string
+  actionType: 'rebalance' | 'stake' | 'swap' | 'protect' | 'hold'
+  title: string
+  description: string
+  steps: string[]
+  confidence: number
+  riskBefore: number
+  riskAfter: number
+  expectedOutcome: string
+  transactionData?: TransactionRequest
 }
 
 // WebSocket Message Types

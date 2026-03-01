@@ -1,12 +1,25 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { TrendingUp, TrendingDown, DollarSign, Percent, Activity } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, Percent, Activity, RefreshCw, Scan } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { TokenBalance } from '@/types'
+
+interface WalletBalance {
+  hbar: number
+  tokens: TokenBalance[]
+}
 
 interface PortfolioOverviewProps {
   isConnected: boolean
+  accountId?: string
+  walletBalance?: WalletBalance
+  onRefresh?: () => Promise<void>
 }
+
+// API base URL
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 // Sample data for the chart
 const chartData = [
@@ -19,38 +32,91 @@ const chartData = [
   { date: 'Jul', value: 28500 },
 ]
 
-const stats = [
-  { 
-    label: 'Total Balance', 
-    value: '$28,542.85', 
-    change: '+12.5%', 
-    isPositive: true,
-    icon: DollarSign 
-  },
-  { 
-    label: '24h Change', 
-    value: '+$1,234.56', 
-    change: '+4.5%', 
-    isPositive: true,
-    icon: TrendingUp 
-  },
-  { 
-    label: 'Total Yield', 
-    value: '8.2% APY', 
-    change: '+0.3%', 
-    isPositive: true,
-    icon: Percent 
-  },
-  { 
-    label: 'AI Trades', 
-    value: '24', 
-    change: 'This week', 
-    isPositive: true,
-    icon: Activity 
-  },
-]
+export default function PortfolioOverview({ isConnected, accountId, walletBalance, onRefresh }: PortfolioOverviewProps) {
+  const [hbarPrice, setHbarPrice] = useState(0.08) // Default price
+  const [isLoading, setIsLoading] = useState(false)
+  const [isScanning, setIsScanning] = useState(false)
+  const [riskAnalysis, setRiskAnalysis] = useState<any>(null)
 
-export default function PortfolioOverview({ isConnected }: PortfolioOverviewProps) {
+  // Calculate portfolio value based on real balance
+  const hbarBalance = walletBalance?.hbar || 0
+  const hbarValue = hbarBalance * hbarPrice
+  const totalValue = hbarValue // Add token values here when available
+
+  // Fetch HBAR price
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=hedera-hashgraph&vs_currencies=usd&include_24hr_change=true')
+        const data = await response.json()
+        if (data['hedera-hashgraph']) {
+          setHbarPrice(data['hedera-hashgraph'].usd)
+        }
+      } catch (err) {
+        console.error('Failed to fetch price:', err)
+      }
+    }
+    fetchPrice()
+    const interval = setInterval(fetchPrice, 60000) // Update every minute
+    return () => clearInterval(interval)
+  }, [])
+
+  // Handle portfolio scan
+  const handleScan = async () => {
+    if (!accountId) return
+    
+    setIsScanning(true)
+    try {
+      const response = await fetch(`${API_BASE}/api/portfolio/${accountId}/risk`)
+      if (response.ok) {
+        const data = await response.json()
+        setRiskAnalysis(data)
+      }
+    } catch (err) {
+      console.error('Scan failed:', err)
+    } finally {
+      setIsScanning(false)
+    }
+  }
+
+  const handleRefresh = async () => {
+    if (onRefresh) {
+      setIsLoading(true)
+      await onRefresh()
+      setIsLoading(false)
+    }
+  }
+
+  const stats = [
+    { 
+      label: 'HBAR Balance', 
+      value: isConnected ? hbarBalance.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' HBAR' : '--', 
+      change: `$${hbarValue.toFixed(2)} USD`, 
+      isPositive: true,
+      icon: DollarSign 
+    },
+    { 
+      label: 'HBAR Price', 
+      value: `$${hbarPrice.toFixed(4)}`, 
+      change: '+2.5%', 
+      isPositive: true,
+      icon: TrendingUp 
+    },
+    { 
+      label: 'Risk Score', 
+      value: riskAnalysis?.riskScore || '--', 
+      change: riskAnalysis?.riskLevel || 'Scan to analyze', 
+      isPositive: riskAnalysis?.riskLevel !== 'high',
+      icon: Percent 
+    },
+    { 
+      label: 'Tokens', 
+      value: isConnected ? (walletBalance?.tokens?.length || 0).toString() : '--', 
+      change: 'HTS tokens', 
+      isPositive: true,
+      icon: Activity 
+    },
+  ]
   return (
     <motion.div 
       className="glass-card p-6 h-full"
@@ -59,14 +125,44 @@ export default function PortfolioOverview({ isConnected }: PortfolioOverviewProp
       transition={{ duration: 0.5 }}
     >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">Portfolio Overview</h2>
-        <div className="flex items-center gap-2 text-sm text-dark-400">
-          <span>Last updated: Just now</span>
-          <motion.div 
-            className="w-2 h-2 rounded-full bg-gold-400"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
+        <div>
+          <h2 className="text-xl font-semibold text-white">Portfolio Overview</h2>
+          {isConnected && accountId && (
+            <p className="text-sm text-dark-400 mt-1">Account: {accountId}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {isConnected && (
+            <>
+              <motion.button
+                onClick={handleRefresh}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-dark-800 border border-dark-700 text-dark-300 hover:text-white hover:border-gold-400/30 transition-all disabled:opacity-50"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <span className="text-xs hidden sm:inline">Refresh</span>
+              </motion.button>
+              <motion.button
+                onClick={handleScan}
+                disabled={isScanning}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold-400/10 border border-gold-400/30 text-gold-400 hover:bg-gold-400/20 transition-all disabled:opacity-50"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Scan className={`w-4 h-4 ${isScanning ? 'animate-pulse' : ''}`} />
+                <span className="text-xs hidden sm:inline">{isScanning ? 'Scanning...' : 'Scan Portfolio'}</span>
+              </motion.button>
+            </>
+          )}
+          <div className="flex items-center gap-2 text-sm text-dark-400">
+            <motion.div 
+              className="w-2 h-2 rounded-full bg-gold-400"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </div>
         </div>
       </div>
 

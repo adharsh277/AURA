@@ -1,66 +1,104 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { TrendingUp, TrendingDown, Coins } from 'lucide-react'
+import { TrendingUp, TrendingDown, Coins, ExternalLink } from 'lucide-react'
+import { TokenBalance } from '@/types'
+
+interface WalletBalance {
+  hbar: number
+  tokens: TokenBalance[]
+}
 
 interface AssetTableProps {
   isConnected: boolean
+  walletBalance?: WalletBalance
 }
 
-const assets = [
-  { 
-    symbol: 'HBAR', 
-    name: 'Hedera', 
-    balance: '45,230.50', 
-    value: '$3,618.44',
-    price: '$0.08',
-    change: '+5.2%',
-    isPositive: true,
-    allocation: 35
-  },
-  { 
-    symbol: 'USDC', 
-    name: 'USD Coin', 
-    balance: '8,500.00', 
-    value: '$8,500.00',
-    price: '$1.00',
-    change: '+0.0%',
-    isPositive: true,
-    allocation: 30
-  },
-  { 
-    symbol: 'SAUCE', 
-    name: 'SaucerSwap', 
-    balance: '12,450.00', 
-    value: '$2,490.00',
-    price: '$0.20',
-    change: '-2.1%',
-    isPositive: false,
-    allocation: 15
-  },
-  { 
-    symbol: 'HST', 
-    name: 'HeadStarter', 
-    balance: '5,000.00', 
-    value: '$1,250.00',
-    price: '$0.25',
-    change: '+8.4%',
-    isPositive: true,
-    allocation: 10
-  },
-  { 
-    symbol: 'PACK', 
-    name: 'HashPack', 
-    balance: '2,150.00', 
-    value: '$645.00',
-    price: '$0.30',
-    change: '+3.2%',
-    isPositive: true,
-    allocation: 10
-  },
-]
+interface DisplayAsset {
+  symbol: string
+  name: string
+  balance: string
+  value: string
+  price: string
+  change: string
+  isPositive: boolean
+  allocation: number
+  tokenId?: string
+}
 
-export default function AssetTable({ isConnected }: AssetTableProps) {
+export default function AssetTable({ isConnected, walletBalance }: AssetTableProps) {
+  const [hbarPrice, setHbarPrice] = useState(0.08)
+  const [priceChange, setPriceChange] = useState(2.5)
+  const [assets, setAssets] = useState<DisplayAsset[]>([])
+
+  // Fetch HBAR price
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=hedera-hashgraph&vs_currencies=usd&include_24hr_change=true')
+        const data = await response.json()
+        if (data['hedera-hashgraph']) {
+          setHbarPrice(data['hedera-hashgraph'].usd)
+          setPriceChange(data['hedera-hashgraph'].usd_24h_change || 0)
+        }
+      } catch (err) {
+        console.error('Failed to fetch price:', err)
+      }
+    }
+    fetchPrice()
+  }, [])
+
+  // Build assets list from wallet balance
+  useEffect(() => {
+    if (!walletBalance) {
+      setAssets([])
+      return
+    }
+
+    const hbarBalance = walletBalance.hbar
+    const hbarValue = hbarBalance * hbarPrice
+    const totalValue = hbarValue // Add token values when available
+
+    const displayAssets: DisplayAsset[] = []
+
+    // Add HBAR
+    if (hbarBalance > 0) {
+      displayAssets.push({
+        symbol: 'HBAR',
+        name: 'Hedera',
+        balance: hbarBalance.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+        value: `$${hbarValue.toFixed(2)}`,
+        price: `$${hbarPrice.toFixed(4)}`,
+        change: `${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%`,
+        isPositive: priceChange >= 0,
+        allocation: totalValue > 0 ? Math.round((hbarValue / totalValue) * 100) : 100
+      })
+    }
+
+    // Add HTS tokens
+    walletBalance.tokens?.forEach(token => {
+      if (token.balance > 0) {
+        const tokenBalance = token.decimals > 0 
+          ? token.balance / Math.pow(10, token.decimals)
+          : token.balance
+        
+        displayAssets.push({
+          symbol: token.symbol || 'TOKEN',
+          name: token.name || 'Unknown Token',
+          balance: tokenBalance.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+          value: '--', // Price not available yet
+          price: '--',
+          change: '--',
+          isPositive: true,
+          allocation: 0,
+          tokenId: token.tokenId
+        })
+      }
+    })
+
+    setAssets(displayAssets)
+  }, [walletBalance, hbarPrice, priceChange])
   return (
     <motion.div 
       className="glass-card p-6"

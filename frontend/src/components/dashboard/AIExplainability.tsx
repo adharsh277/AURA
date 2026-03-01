@@ -1,32 +1,58 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Brain, AlertTriangle, TrendingUp, Shield, Info, ChevronRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Brain, AlertTriangle, TrendingUp, Shield, Info, ChevronRight, Zap, CheckCircle, ExternalLink, Loader2, XCircle } from 'lucide-react'
 
 interface AIExplainabilityProps {
   isConnected: boolean
+  accountId?: string
+  onExecute?: (transactionData: any) => Promise<{ success: boolean; transactionId?: string; error?: string }>
 }
 
-const currentDecision = {
-  action: 'Recommending: Stake 3,000 HBAR on SaucerSwap',
-  reasoning: [
-    'HBAR price has been stable for 72 hours',
-    'SaucerSwap APY increased to 12.5%',
-    'Current portfolio yield is below target',
-    'Low gas fees detected on Hedera network'
+interface AISuggestion {
+  id: string
+  actionType: 'rebalance' | 'stake' | 'swap' | 'protect' | 'hold'
+  title: string
+  description: string
+  steps: string[]
+  confidence: number
+  riskBefore: number
+  riskAfter: number
+  expectedOutcome: string
+  amount?: number
+}
+
+// Mock AI suggestion (in production, this would come from the backend)
+const mockSuggestion: AISuggestion = {
+  id: 'suggestion-1',
+  actionType: 'rebalance',
+  title: 'Optimize Portfolio Allocation',
+  description: 'AI recommends rebalancing to reduce volatility exposure and optimize for stable yield.',
+  steps: [
+    'Transfer 10 HBAR to Treasury Contract',
+    'Stake 5 HBAR on SaucerSwap for 12.5% APY',
+    'Hold remaining balance for liquidity',
+    'Monitor for 24h before next rebalance'
   ],
-  riskScore: 35,
-  confidenceScore: 87,
-  expectedOutcome: '+$450 estimated monthly yield',
-  alternatives: [
-    { action: 'Hold current positions', risk: 20, confidence: 65 },
-    { action: 'Swap to USDC', risk: 15, confidence: 45 }
-  ]
+  confidence: 84,
+  riskBefore: 72,
+  riskAfter: 45,
+  expectedOutcome: 'Reduced risk by 27 points with +$45 estimated monthly yield',
+  amount: 10
 }
 
-export default function AIExplainability({ isConnected }: AIExplainabilityProps) {
+export default function AIExplainability({ isConnected, accountId, onExecute }: AIExplainabilityProps) {
+  const [suggestion, setSuggestion] = useState<AISuggestion>(mockSuggestion)
+  const [isExecuting, setIsExecuting] = useState(false)
+  const [executionResult, setExecutionResult] = useState<{
+    status: 'idle' | 'pending' | 'success' | 'failed'
+    transactionId?: string
+    error?: string
+  }>({ status: 'idle' })
+
   const getRiskColor = (score: number) => {
-    if (score <= 30) return 'text-gold-400'
+    if (score <= 30) return 'text-green-400'
     if (score <= 60) return 'text-amber-400'
     return 'text-red-400'
   }
@@ -35,6 +61,54 @@ export default function AIExplainability({ isConnected }: AIExplainabilityProps)
     if (score <= 30) return 'Low Risk'
     if (score <= 60) return 'Medium Risk'
     return 'High Risk'
+  }
+
+  const getRiskBgColor = (score: number) => {
+    if (score <= 30) return 'bg-green-400'
+    if (score <= 60) return 'bg-amber-400'
+    return 'bg-red-400'
+  }
+
+  const handleExecute = async () => {
+    if (!onExecute || !suggestion) return
+
+    setIsExecuting(true)
+    setExecutionResult({ status: 'pending' })
+
+    try {
+      // Prepare transaction data based on suggestion
+      const transactionData = {
+        type: suggestion.actionType,
+        description: suggestion.title,
+        amount: suggestion.amount || 10,
+        recipient: '0.0.98' // Treasury account for demo
+      }
+
+      const result = await onExecute(transactionData)
+
+      if (result.success) {
+        setExecutionResult({
+          status: 'success',
+          transactionId: result.transactionId
+        })
+      } else {
+        setExecutionResult({
+          status: 'failed',
+          error: result.error || 'Transaction failed'
+        })
+      }
+    } catch (err) {
+      setExecutionResult({
+        status: 'failed',
+        error: (err as Error).message || 'Execution failed'
+      })
+    } finally {
+      setIsExecuting(false)
+    }
+  }
+
+  const resetExecution = () => {
+    setExecutionResult({ status: 'idle' })
   }
 
   return (
@@ -46,12 +120,18 @@ export default function AIExplainability({ isConnected }: AIExplainabilityProps)
     >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
+          <motion.div 
+            className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center"
+            animate={{ 
+              boxShadow: ['0 0 0 0 rgba(255, 215, 0, 0)', '0 0 20px 5px rgba(255, 215, 0, 0.3)', '0 0 0 0 rgba(255, 215, 0, 0)']
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             <Brain className="w-5 h-5 text-dark-950" />
-          </div>
+          </motion.div>
           <div>
             <h2 className="text-xl font-semibold text-white">AI Decision Explainer</h2>
-            <p className="text-sm text-dark-400">Understand why AI makes each decision</p>
+            <p className="text-sm text-dark-400">Transparent AI reasoning for every action</p>
           </div>
         </div>
         <motion.div
@@ -73,111 +153,256 @@ export default function AIExplainability({ isConnected }: AIExplainabilityProps)
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Current Recommendation */}
           <div className="lg:col-span-2">
-            <div className="bg-dark-900/50 rounded-xl p-4 border border-gold-400/20 mb-4">
-              <div className="flex items-center gap-2 mb-3">
-                <TrendingUp className="w-5 h-5 text-gold-400" />
-                <h3 className="font-semibold text-white">{currentDecision.action}</h3>
+            <div className="bg-dark-900/50 rounded-xl p-5 border border-gold-400/20 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="px-2 py-1 rounded-md bg-gold-400/10 text-gold-400 text-xs font-medium uppercase">
+                    {suggestion.actionType}
+                  </div>
+                  <h3 className="font-semibold text-white">{suggestion.title}</h3>
+                </div>
               </div>
+
+              <p className="text-sm text-dark-300 mb-4">{suggestion.description}</p>
               
-              <div className="space-y-2">
-                <p className="text-sm text-dark-400 mb-2">Why this decision:</p>
-                {currentDecision.reasoning.map((reason, index) => (
+              <div className="space-y-2 mb-4">
+                <p className="text-sm text-dark-400">Execution Steps:</p>
+                {suggestion.steps.map((step, index) => (
                   <motion.div 
                     key={index}
-                    className="flex items-center gap-2"
+                    className="flex items-start gap-3 p-2 rounded-lg bg-dark-800/50"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <ChevronRight className="w-4 h-4 text-gold-400" />
-                    <span className="text-sm text-dark-300">{reason}</span>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-gold-400/10">
-                <p className="text-sm text-gold-400 font-medium">{currentDecision.expectedOutcome}</p>
-              </div>
-            </div>
-
-            {/* Alternative Actions */}
-            <div>
-              <p className="text-sm text-dark-400 mb-2">Alternative actions considered:</p>
-              <div className="flex gap-3">
-                {currentDecision.alternatives.map((alt, index) => (
-                  <motion.div
-                    key={index}
-                    className="flex-1 p-3 rounded-lg bg-dark-900/30 border border-dark-700/50"
-                    whileHover={{ borderColor: 'rgba(255, 215, 0, 0.3)' }}
-                  >
-                    <p className="text-sm text-dark-300 mb-2">{alt.action}</p>
-                    <div className="flex items-center gap-3 text-xs">
-                      <span className={getRiskColor(alt.risk)}>Risk: {alt.risk}%</span>
-                      <span className="text-dark-500">Confidence: {alt.confidence}%</span>
+                    <div className="w-5 h-5 rounded-full bg-gold-400/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs text-gold-400 font-medium">{index + 1}</span>
                     </div>
+                    <span className="text-sm text-dark-300">{step}</span>
                   </motion.div>
                 ))}
               </div>
+
+              {/* Risk Comparison */}
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-dark-800/30 border border-dark-700 mb-4">
+                <div>
+                  <p className="text-xs text-dark-500 mb-1">Risk Before</p>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xl font-bold ${getRiskColor(suggestion.riskBefore)}`}>
+                      {suggestion.riskBefore}/100
+                    </span>
+                    <span className={`text-xs ${getRiskColor(suggestion.riskBefore)}`}>
+                      {getRiskLabel(suggestion.riskBefore)}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-dark-500 mb-1">Risk After</p>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xl font-bold ${getRiskColor(suggestion.riskAfter)}`}>
+                      {suggestion.riskAfter}/100
+                    </span>
+                    <span className={`text-xs ${getRiskColor(suggestion.riskAfter)}`}>
+                      {getRiskLabel(suggestion.riskAfter)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expected Outcome */}
+              <div className="p-3 rounded-lg bg-gold-400/5 border border-gold-400/20">
+                <p className="text-sm text-gold-400 font-medium">
+                  <TrendingUp className="w-4 h-4 inline mr-2" />
+                  {suggestion.expectedOutcome}
+                </p>
+              </div>
             </div>
+
+            {/* Execution Panel */}
+            <AnimatePresence mode="wait">
+              {executionResult.status === 'idle' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex items-center justify-between p-4 rounded-xl bg-dark-900/30 border border-dark-700"
+                >
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-dark-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-dark-300">Ready to execute this optimization?</p>
+                      <p className="text-xs text-dark-500 mt-1">Your wallet will prompt you to sign the transaction.</p>
+                    </div>
+                  </div>
+                  <motion.button
+                    onClick={handleExecute}
+                    disabled={isExecuting}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-gold-400 to-gold-600 text-dark-950 font-semibold hover:shadow-lg hover:shadow-gold-400/20 transition-all disabled:opacity-50"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Zap className="w-5 h-5" />
+                    Execute Optimization
+                  </motion.button>
+                </motion.div>
+              )}
+
+              {executionResult.status === 'pending' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex flex-col items-center justify-center p-8 rounded-xl bg-dark-900/30 border border-gold-400/30"
+                >
+                  <Loader2 className="w-10 h-10 text-gold-400 animate-spin mb-4" />
+                  <p className="text-lg font-medium text-white">Waiting for Wallet Approval</p>
+                  <p className="text-sm text-dark-400 mt-2">Please sign the transaction in HashPack</p>
+                </motion.div>
+              )}
+
+              {executionResult.status === 'success' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="p-6 rounded-xl bg-green-400/10 border border-green-400/30"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-green-400/20 flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-medium text-white">Transaction Successful!</p>
+                      <p className="text-sm text-dark-400">Your portfolio has been optimized</p>
+                    </div>
+                  </div>
+                  
+                  {executionResult.transactionId && (
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-dark-900/50 mb-4">
+                      <div>
+                        <p className="text-xs text-dark-500">Transaction ID</p>
+                        <p className="text-sm text-white font-mono">{executionResult.transactionId}</p>
+                      </div>
+                      <a
+                        href={`https://hashscan.io/testnet/transaction/${executionResult.transactionId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-dark-800 text-gold-400 hover:bg-dark-700 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span className="text-sm">View on Explorer</span>
+                      </a>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={resetExecution}
+                    className="w-full py-2 rounded-lg bg-dark-800 text-dark-300 hover:text-white transition-colors"
+                  >
+                    Done
+                  </button>
+                </motion.div>
+              )}
+
+              {executionResult.status === 'failed' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="p-6 rounded-xl bg-red-400/10 border border-red-400/30"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-red-400/20 flex items-center justify-center">
+                      <XCircle className="w-6 h-6 text-red-400" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-medium text-white">Transaction Failed</p>
+                      <p className="text-sm text-red-400">{executionResult.error}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={resetExecution}
+                    className="w-full py-2 rounded-lg bg-dark-800 text-dark-300 hover:text-white transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Scores Panel */}
           <div className="space-y-4">
-            {/* Risk Score */}
-            <div className="bg-background-dark/50 rounded-xl p-4 border border-primary-blue/20">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className={`w-5 h-5 ${getRiskColor(currentDecision.riskScore)}`} />
-                  <span className="text-sm text-dark-400">Risk Score</span>
-                </div>
-                <span className={`text-2xl font-bold ${getRiskColor(currentDecision.riskScore)}`}>
-                  {currentDecision.riskScore}%
-                </span>
-              </div>
-              <div className="relative h-2 bg-dark-800 rounded-full overflow-hidden">
-                <motion.div
-                  className={`absolute left-0 top-0 h-full rounded-full ${
-                    currentDecision.riskScore <= 30 ? 'bg-gold-400' :
-                    currentDecision.riskScore <= 60 ? 'bg-amber-400' : 'bg-red-400'
-                  }`}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${currentDecision.riskScore}%` }}
-                  transition={{ duration: 1 }}
-                />
-              </div>
-              <p className={`text-xs mt-2 ${getRiskColor(currentDecision.riskScore)}`}>
-                {getRiskLabel(currentDecision.riskScore)}
-              </p>
-            </div>
-
             {/* Confidence Score */}
             <div className="bg-dark-900/50 rounded-xl p-4 border border-gold-400/20">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Shield className="w-5 h-5 text-gold-400" />
-                  <span className="text-sm text-dark-400">Confidence</span>
+                  <span className="text-sm text-dark-400">AI Confidence</span>
                 </div>
                 <span className="text-2xl font-bold text-gold-400">
-                  {currentDecision.confidenceScore}%
+                  {suggestion.confidence}%
                 </span>
               </div>
               <div className="relative h-2 bg-dark-800 rounded-full overflow-hidden">
                 <motion.div
                   className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-gold-400 to-gold-600"
                   initial={{ width: 0 }}
-                  animate={{ width: `${currentDecision.confidenceScore}%` }}
+                  animate={{ width: `${suggestion.confidence}%` }}
                   transition={{ duration: 1, delay: 0.2 }}
                 />
               </div>
               <p className="text-xs mt-2 text-gold-400">High Confidence</p>
             </div>
 
-            {/* Info */}
+            {/* Risk Reduction Visual */}
+            <div className="bg-dark-900/50 rounded-xl p-4 border border-gold-400/20">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-5 h-5 text-amber-400" />
+                <span className="text-sm text-dark-400">Risk Reduction</span>
+              </div>
+              
+              <div className="flex items-center justify-center gap-3 py-4">
+                <div className="text-center">
+                  <div className={`text-3xl font-bold ${getRiskColor(suggestion.riskBefore)}`}>
+                    {suggestion.riskBefore}
+                  </div>
+                  <p className="text-xs text-dark-500">Before</p>
+                </div>
+                <motion.div
+                  className="flex items-center"
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <ChevronRight className="w-6 h-6 text-gold-400" />
+                  <ChevronRight className="w-6 h-6 text-gold-400 -ml-3" />
+                </motion.div>
+                <div className="text-center">
+                  <div className={`text-3xl font-bold ${getRiskColor(suggestion.riskAfter)}`}>
+                    {suggestion.riskAfter}
+                  </div>
+                  <p className="text-xs text-dark-500">After</p>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-400/10 text-green-400 text-sm font-medium">
+                  <TrendingUp className="w-4 h-4" />
+                  -{suggestion.riskBefore - suggestion.riskAfter} points
+                </span>
+              </div>
+            </div>
+
+            {/* Security Note */}
             <div className="flex items-start gap-2 p-3 rounded-lg bg-gold-400/5 border border-gold-400/10">
-              <Info className="w-4 h-4 text-gold-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-dark-400">
-                AI analyzes market data, portfolio risk, and yield opportunities to make optimal decisions.
-              </p>
+              <Shield className="w-4 h-4 text-gold-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs text-white font-medium mb-1">AI Never Holds Funds</p>
+                <p className="text-xs text-dark-400">
+                  AI suggests → You approve → Wallet signs → Network executes. Your keys, your control.
+                </p>
+              </div>
             </div>
           </div>
         </div>

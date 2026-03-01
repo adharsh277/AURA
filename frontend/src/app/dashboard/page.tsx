@@ -8,19 +8,23 @@ import AssetTable from '@/components/dashboard/AssetTable'
 import AIActionsHistory from '@/components/dashboard/AIActionsHistory'
 import AIExplainability from '@/components/dashboard/AIExplainability'
 import DashboardBackground from '@/components/dashboard/DashboardBackground'
+import WalletConnectionModal from '@/components/wallet/WalletConnectionModal'
+import { useWallet } from '@/hooks/useWallet'
 
 export default function Dashboard() {
-  const [isWalletConnected, setIsWalletConnected] = useState(false)
-  const [walletAddress, setWalletAddress] = useState('')
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+  const { wallet, isConnecting, error, connect, disconnect, refreshBalance, signTransaction } = useWallet()
 
-  const handleWalletConnect = async () => {
-    setIsWalletConnected(true)
-    setWalletAddress('0.0.123456')
+  const handleWalletConnect = () => {
+    setIsWalletModalOpen(true)
+  }
+
+  const handleConnect = async (provider: 'hashpack' | 'metamask' | 'xverse') => {
+    await connect(provider)
   }
 
   const handleWalletDisconnect = () => {
-    setIsWalletConnected(false)
-    setWalletAddress('')
+    disconnect()
   }
 
   return (
@@ -32,10 +36,20 @@ export default function Dashboard() {
       <div className="relative z-10">
         {/* Navigation */}
         <DashboardNavbar 
-          isConnected={isWalletConnected}
-          walletAddress={walletAddress}
+          isConnected={wallet?.isConnected || false}
+          walletAddress={wallet?.accountId || ''}
+          walletBalance={wallet?.balance?.hbar}
           onConnect={handleWalletConnect}
           onDisconnect={handleWalletDisconnect}
+        />
+        
+        {/* Wallet Connection Modal */}
+        <WalletConnectionModal
+          isOpen={isWalletModalOpen}
+          onClose={() => setIsWalletModalOpen(false)}
+          onConnect={handleConnect}
+          isConnecting={isConnecting}
+          error={error}
         />
         
         {/* Dashboard Grid */}
@@ -44,27 +58,39 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
             {/* Portfolio Overview - Takes 2 columns */}
             <div className="xl:col-span-2">
-              <PortfolioOverview isConnected={isWalletConnected} />
+              <PortfolioOverview 
+                isConnected={wallet?.isConnected || false} 
+                accountId={wallet?.accountId}
+                walletBalance={wallet?.balance}
+                onRefresh={refreshBalance}
+              />
             </div>
             
             {/* AI Agent Status - Takes 1 column */}
             <div className="xl:col-span-1">
-              <AIAgentStatus isConnected={isWalletConnected} />
+              <AIAgentStatus isConnected={wallet?.isConnected || false} />
             </div>
           </div>
           
           {/* Middle Section - AI Explainability */}
           <div className="mb-6">
-            <AIExplainability isConnected={isWalletConnected} />
+            <AIExplainability 
+              isConnected={wallet?.isConnected || false}
+              accountId={wallet?.accountId}
+              onExecute={signTransaction}
+            />
           </div>
           
           {/* Bottom Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Asset Table */}
-            <AssetTable isConnected={isWalletConnected} />
+            <AssetTable 
+              isConnected={wallet?.isConnected || false}
+              walletBalance={wallet?.balance}
+            />
             
             {/* AI Actions History */}
-            <AIActionsHistory isConnected={isWalletConnected} />
+            <AIActionsHistory isConnected={wallet?.isConnected || false} />
           </div>
         </div>
       </div>

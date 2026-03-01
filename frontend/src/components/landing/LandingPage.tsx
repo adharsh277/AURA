@@ -98,12 +98,6 @@ export default function LandingPage() {
           >
             <Link 
               href="/dashboard"
-              className="hidden sm:block text-sm text-dark-400 hover:text-white transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/dashboard"
               className="btn-primary text-sm px-5 py-2.5 flex items-center gap-2"
             >
               Launch App
