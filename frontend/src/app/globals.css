@@ -1,0 +1,275 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  /* Gold/Yellow Theme */
+  --gold-primary: #FFD700;
+  --gold-secondary: #F7931A;
+  --gold-accent: #FFA500;
+  --gold-light: #FFF3C4;
+  
+  /* Dark backgrounds */
+  --bg-primary: #050507;
+  --bg-secondary: #0A0A0F;
+  --bg-card: #0F0F14;
+  --bg-elevated: #18181F;
+  
+  /* Text colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  
+  /* Gradients */
+  --gradient-gold: linear-gradient(135deg, #FFD700 0%, #F7931A 50%, #FFA500 100%);
+  --gradient-gold-soft: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(247, 147, 26, 0.1) 100%);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Modern Glass Card */
+.glass-card {
+  background: rgba(15, 15, 20, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 215, 0, 0.25);
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Premium Glass Card */
+.glass-card-premium {
+  background: linear-gradient(135deg, rgba(15, 15, 20, 0.9) 0%, rgba(24, 24, 31, 0.9) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+}
+
+/* Primary Button - Gold Gradient */
+.btn-primary {
+  background: var(--gradient-gold);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 32px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #0A0A0F;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: -0.01em;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(247, 147, 26, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Secondary Button - Outline */
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 14px;
+  padding: 14px 32px;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--gold-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: -0.01em;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);
+}
+
+/* Text Gradient */
+.text-gradient {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-white {
+  background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effects */
+.glow-gold {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.1);
+}
+
+.glow-gold-intense {
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 0 60px rgba(247, 147, 26, 0.3), 0 0 100px rgba(255, 165, 0, 0.2);
+}
+
+/* Floating animation for hero elements */
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(1deg); }
+  50% { transform: translateY(-20px) rotate(0deg); }
+  75% { transform: translateY(-10px) rotate(-1deg); }
+}
+
+.hero-float {
+  animation: hero-float 8s ease-in-out infinite;
+}
+
+/* Blockchain node animation */
+@keyframes node-glow {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 0 50px rgba(247, 147, 26, 0.4);
+    transform: scale(1.1);
+  }
+}
+
+.node-glow {
+  animation: node-glow 2s ease-in-out infinite;
+}
+
+/* Connection line animation */
+@keyframes connection-flow {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.connection-line {
+  stroke-dasharray: 10, 5;
+  animation: connection-flow 2s linear infinite;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--gold-primary), var(--gold-secondary));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-primary);
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(255, 215, 0, 0.3);
+  color: white;
+}
+
+/* Grid pattern background */
+.grid-pattern {
+  background-image: 
+    linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Radial glow background */
+.radial-glow {
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 215, 0, 0.15), transparent);
+}
+
+/* Feature card hover effect */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 215, 0, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.feature-card:hover::after {
+  opacity: 1;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+}
