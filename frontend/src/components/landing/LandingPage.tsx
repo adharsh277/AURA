@@ -9,27 +9,27 @@ const features = [
   {
     icon: Brain,
     title: 'Autonomous AI Agent',
-    description: 'Self-learning AI that makes intelligent trading decisions 24/7 without human intervention.',
+    description: 'Self-governing treasury AI that adapts reserve, hedge, and yield decisions 24/7.',
   },
   {
     icon: TrendingUp,
-    title: 'Smart Optimization',
-    description: 'Maximize yield while minimizing risk through advanced portfolio rebalancing algorithms.',
+    title: 'Economic Optimization',
+    description: 'Maximizes risk-adjusted yield while preserving stable reserve thresholds.',
   },
   {
     icon: Shield,
     title: 'Risk Protection',
-    description: 'Automatic stop-loss triggers and real-time volatility monitoring to protect your assets.',
+    description: 'Capital preservation guardrails with deterministic risk controls and drawdown limits.',
   },
   {
     icon: Zap,
-    title: 'Lightning Fast',
-    description: 'Built on Hedera for sub-second finality and minimal transaction costs.',
+    title: 'Autonomous Execution',
+    description: 'Observe → Evaluate → Plan → Execute → Log → Adapt without manual intervention.',
   },
 ]
 
 const stats = [
-  { value: '$2.4M+', label: 'Assets Managed' },
+  { value: '$2.4M+', label: 'Treasury Capital Managed' },
   { value: '99.9%', label: 'Uptime' },
   { value: '<3s', label: 'Avg Response' },
   { value: '24/7', label: 'AI Monitoring' },
@@ -66,8 +66,8 @@ export default function LandingPage() {
               />
             </div>
             <span className="text-2xl font-bold tracking-tight">
-              <span className="text-white">AU</span>
-              <span className="text-gradient">RA</span>
+              <span className="text-white">AURA</span>
+              <span className="text-gradient">-T</span>
             </span>
           </motion.div>
 
@@ -121,7 +121,7 @@ export default function LandingPage() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-400/10 border border-gold-400/20 mb-8"
               >
                 <Sparkles className="w-4 h-4 text-gold-400" />
-                <span className="text-sm text-gold-400 font-medium">Powered by Hedera Hashgraph</span>
+                <span className="text-sm text-gold-400 font-medium">Autonomous Stable Treasury Agent</span>
               </motion.div>
 
               {/* Headline */}
@@ -131,11 +131,11 @@ export default function LandingPage() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] tracking-tight mb-6"
               >
-                <span className="text-white">Your Portfolio,</span>
+                <span className="text-white">Your Treasury,</span>
                 <br />
                 <span className="text-gradient">Autonomously</span>
                 <br />
-                <span className="text-white">Optimized</span>
+                <span className="text-white">Managed</span>
               </motion.h1>
 
               {/* Subheadline */}
@@ -145,7 +145,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-lg lg:text-xl text-dark-400 leading-relaxed mb-10 max-w-xl"
               >
-                AURA is an AI agent that autonomously manages, optimizes, and protects your crypto portfolio on Hedera — 24/7, without human intervention.
+                AURA-T is an autonomous stable treasury agent managing USD₮ and XAU₮ capital with on-chain transparency and adaptive economic intelligence.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -159,7 +159,7 @@ export default function LandingPage() {
                   href="/dashboard"
                   className="btn-primary px-8 py-4 text-base flex items-center justify-center gap-3 group"
                 >
-                  Start Managing Portfolio
+                  Start Managing Treasury
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <button className="btn-secondary px-8 py-4 text-base flex items-center justify-center gap-3">
@@ -224,9 +224,9 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  {/* Portfolio Value */}
+                  {/* Treasury Value */}
                   <div className="mb-6">
-                    <div className="text-sm text-dark-400 mb-1">Portfolio Value</div>
+                    <div className="text-sm text-dark-400 mb-1">Treasury Value</div>
                     <div className="text-4xl font-bold text-white mb-2">$128,459.32</div>
                     <div className="flex items-center gap-2">
                       <span className="px-2 py-1 rounded-md bg-green-500/10 text-green-400 text-sm font-medium">
@@ -257,11 +257,11 @@ export default function LandingPage() {
                           <TrendingUp className="w-5 h-5 text-gold-400" />
                         </div>
                         <div>
-                          <div className="text-white font-medium text-sm">Optimized Position</div>
-                          <div className="text-dark-500 text-xs">Staked 5,000 HBAR</div>
+                          <div className="text-white font-medium text-sm">Autonomous Allocation</div>
+                          <div className="text-dark-500 text-xs">Yield lane funded with 4,500 USD₮</div>
                         </div>
                       </div>
-                      <div className="text-green-400 text-sm font-medium">+8.5% APY</div>
+                      <div className="text-green-400 text-sm font-medium">+7.2% Expected Return</div>
                     </div>
                   </div>
                 </div>
@@ -290,7 +290,7 @@ export default function LandingPage() {
                     <Zap className="w-8 h-8 text-gold-400" />
                     <div>
                       <div className="text-white font-semibold text-sm">Fast Execution</div>
-                      <div className="text-dark-500 text-xs">~2s on Hedera</div>
+                      <div className="text-dark-500 text-xs">Autonomous cycle active</div>
                     </div>
                   </div>
                 </motion.div>
@@ -323,7 +323,7 @@ export default function LandingPage() {
             >
               Everything You Need for
               <br />
-              <span className="text-gradient">Autonomous Portfolio Management</span>
+              <span className="text-gradient">Autonomous Treasury Management</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -332,7 +332,7 @@ export default function LandingPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-lg text-dark-400 max-w-2xl mx-auto"
             >
-              AURA combines cutting-edge AI with the speed and security of Hedera to deliver a truly autonomous trading experience.
+              AURA-T combines adaptive AI logic with transparent decision logging to deliver autonomous treasury operations.
             </motion.p>
           </div>
 
@@ -376,10 +376,10 @@ export default function LandingPage() {
             
             <div className="relative z-10">
               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-                Ready to Let AI Manage Your Portfolio?
+                Ready to Let AI Manage Your Treasury?
               </h2>
               <p className="text-lg text-dark-400 mb-10 max-w-xl mx-auto">
-                Join the future of autonomous portfolio management. Connect your wallet and let AURA optimize your crypto investments.
+                Join the future of autonomous treasury management. Connect your wallet and let AURA-T manage USD₮ and XAU₮ capital.
               </p>
               <Link 
                 href="/dashboard"
@@ -400,10 +400,10 @@ export default function LandingPage() {
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
               <span className="text-dark-950 font-bold">A</span>
             </div>
-            <span className="text-white font-semibold">AURA</span>
+            <span className="text-white font-semibold">AURA-T</span>
           </div>
           <div className="text-sm text-dark-500">
-            © 2026 AURA. Built on Hedera Hashgraph.
+            © 2026 AURA-T. Autonomous Stable Treasury Agent.
           </div>
           <div className="flex items-center gap-6">
             {['Twitter', 'Discord', 'GitHub'].map((social) => (

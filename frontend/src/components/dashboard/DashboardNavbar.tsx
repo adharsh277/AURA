@@ -37,7 +37,7 @@ export default function DashboardNavbar({ isConnected, walletAddress, walletBala
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'portfolio', label: 'Portfolio', icon: PieChart },
+    { id: 'treasury', label: 'Treasury', icon: PieChart },
     { id: 'ai-agent', label: 'AI Agent', icon: Bot },
     { id: 'history', label: 'History', icon: History },
   ]
@@ -59,7 +59,7 @@ export default function DashboardNavbar({ isConnected, walletAddress, walletBala
   }
 
   const openExplorer = () => {
-    window.open(`https://hashscan.io/testnet/account/${walletAddress}`, '_blank')
+    window.open(`https://sepolia.etherscan.io/address/${walletAddress}`, '_blank')
     setIsDropdownOpen(false)
   }
 
@@ -86,8 +86,8 @@ export default function DashboardNavbar({ isConnected, walletAddress, walletBala
                 />
               </div>
               <span className="text-xl font-bold tracking-tight hidden sm:block">
-                <span className="text-white">AU</span>
-                <span className="text-gradient">RA</span>
+                <span className="text-white">AURA</span>
+                <span className="text-gradient">-T</span>
               </span>
             </Link>
 
@@ -135,7 +135,7 @@ export default function DashboardNavbar({ isConnected, walletAddress, walletBala
             {/* Network Status */}
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-dark-900 border border-dark-700">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs text-dark-400">Testnet</span>
+              <span className="text-xs text-dark-400">Autonomous</span>
             </div>
 
             {/* Wallet Connect Button */}
@@ -154,11 +154,11 @@ export default function DashboardNavbar({ isConnected, walletAddress, walletBala
                   >
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">H</span>
+                        <span className="text-white text-xs font-bold">M</span>
                       </div>
                       <div className="hidden sm:flex flex-col items-start">
-                        <span className="text-xs text-dark-400">HashPack</span>
-                        <span className="text-sm font-medium text-gold-400">{formatBalance(walletBalance)} HBAR</span>
+                        <span className="text-xs text-dark-400">MetaMask</span>
+                        <span className="text-sm font-medium text-gold-400">{formatBalance(walletBalance)} Balance</span>
                       </div>
                     </div>
                     <span className="text-sm font-medium text-dark-300 hidden lg:inline">{formatAddress(walletAddress)}</span>
@@ -176,16 +176,16 @@ export default function DashboardNavbar({ isConnected, walletAddress, walletBala
                       <div className="px-4 py-3 border-b border-dark-700">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
-                            <span className="text-white text-lg font-bold">H</span>
+                            <span className="text-white text-lg font-bold">M</span>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-white">HashPack</p>
+                            <p className="text-sm font-medium text-white">MetaMask</p>
                             <p className="text-xs text-dark-400">{walletAddress}</p>
                           </div>
                         </div>
                         <div className="mt-3 p-2 rounded-lg bg-dark-800 flex items-center justify-between">
                           <span className="text-sm text-dark-400">Balance</span>
-                          <span className="text-sm font-medium text-gold-400">{formatBalance(walletBalance)} HBAR</span>
+                          <span className="text-sm font-medium text-gold-400">{formatBalance(walletBalance)}</span>
                         </div>
                       </div>
 

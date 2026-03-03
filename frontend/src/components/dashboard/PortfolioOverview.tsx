@@ -1,124 +1,68 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { TrendingUp, TrendingDown, DollarSign, Percent, Activity, RefreshCw, Scan } from 'lucide-react'
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { TokenBalance } from '@/types'
-
-interface WalletBalance {
-  hbar: number
-  tokens: TokenBalance[]
-}
+import { TrendingUp, TrendingDown, DollarSign, Percent, Activity } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { AutonomousTreasury } from '@/types'
 
 interface PortfolioOverviewProps {
   isConnected: boolean
-  accountId?: string
-  walletBalance?: WalletBalance
-  onRefresh?: () => Promise<void>
+  treasury: AutonomousTreasury | null
 }
 
-// API base URL
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-
-// Sample data for the chart
 const chartData = [
-  { date: 'Jan', value: 12000 },
-  { date: 'Feb', value: 15000 },
-  { date: 'Mar', value: 13500 },
-  { date: 'Apr', value: 18000 },
-  { date: 'May', value: 22000 },
-  { date: 'Jun', value: 25000 },
-  { date: 'Jul', value: 28500 },
+  { date: 'Jan', reserve: 2800, yield: 4700, hedge: 2500 },
+  { date: 'Feb', reserve: 3000, yield: 4500, hedge: 2500 },
+  { date: 'Mar', reserve: 3200, yield: 4300, hedge: 2500 },
+  { date: 'Apr', reserve: 3000, yield: 4600, hedge: 2400 },
+  { date: 'May', reserve: 2900, yield: 4800, hedge: 2300 },
+  { date: 'Jun', reserve: 3000, yield: 4500, hedge: 2500 },
 ]
 
-export default function PortfolioOverview({ isConnected, accountId, walletBalance, onRefresh }: PortfolioOverviewProps) {
-  const [hbarPrice, setHbarPrice] = useState(0.08) // Default price
-  const [isLoading, setIsLoading] = useState(false)
-  const [isScanning, setIsScanning] = useState(false)
-  const [riskAnalysis, setRiskAnalysis] = useState<any>(null)
+export default function PortfolioOverview({ isConnected, treasury }: PortfolioOverviewProps) {
+  const capital = treasury?.capital.deposited ?? 10000
+  const usdtReserve = treasury?.capital.usdtReserve ?? 3000
+  const xautHedge = treasury?.capital.xautHedge ?? 2500
+  const yieldDeployed = treasury?.capital.yieldDeployed ?? 4500
 
-  // Calculate portfolio value based on real balance
-  const hbarBalance = walletBalance?.hbar || 0
-  const hbarValue = hbarBalance * hbarPrice
-  const totalValue = hbarValue // Add token values here when available
-
-  // Fetch HBAR price
-  useEffect(() => {
-    const fetchPrice = async () => {
-      try {
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=hedera-hashgraph&vs_currencies=usd&include_24hr_change=true')
-        const data = await response.json()
-        if (data['hedera-hashgraph']) {
-          setHbarPrice(data['hedera-hashgraph'].usd)
-        }
-      } catch (err) {
-        console.error('Failed to fetch price:', err)
-      }
-    }
-    fetchPrice()
-    const interval = setInterval(fetchPrice, 60000) // Update every minute
-    return () => clearInterval(interval)
-  }, [])
-
-  // Handle portfolio scan
-  const handleScan = async () => {
-    if (!accountId) return
-    
-    setIsScanning(true)
-    try {
-      const response = await fetch(`${API_BASE}/api/portfolio/${accountId}/risk`)
-      if (response.ok) {
-        const data = await response.json()
-        setRiskAnalysis(data)
-      }
-    } catch (err) {
-      console.error('Scan failed:', err)
-    } finally {
-      setIsScanning(false)
-    }
-  }
-
-  const handleRefresh = async () => {
-    if (onRefresh) {
-      setIsLoading(true)
-      await onRefresh()
-      setIsLoading(false)
-    }
-  }
+  const stableReservePercent = treasury?.analytics.stableReservePercent ?? 30
+  const deployedCapitalPercent = treasury?.analytics.deployedCapitalPercent ?? 70
+  const capitalEfficiency = treasury?.analytics.capitalEfficiencyPercent ?? 7.2
+  const worstCaseDrawdown = treasury?.analytics.worstCaseDrawdownPercent ?? -6
 
   const stats = [
-    { 
-      label: 'HBAR Balance', 
-      value: isConnected ? hbarBalance.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' HBAR' : '--', 
-      change: `$${hbarValue.toFixed(2)} USD`, 
+    {
+      label: 'USD₮ Balance',
+      value: `$${usdtReserve.toLocaleString()}`,
+      change: `${stableReservePercent}% reserve`,
       isPositive: true,
-      icon: DollarSign 
+      icon: DollarSign,
     },
-    { 
-      label: 'HBAR Price', 
-      value: `$${hbarPrice.toFixed(4)}`, 
-      change: '+2.5%', 
+    {
+      label: 'XAU₮ Balance',
+      value: `$${xautHedge.toLocaleString()}`,
+      change: `${deployedCapitalPercent - 45}% hedge`,
       isPositive: true,
-      icon: TrendingUp 
+      icon: Activity,
     },
-    { 
-      label: 'Risk Score', 
-      value: riskAnalysis?.riskScore || '--', 
-      change: riskAnalysis?.riskLevel || 'Scan to analyze', 
-      isPositive: riskAnalysis?.riskLevel !== 'high',
-      icon: Percent 
-    },
-    { 
-      label: 'Tokens', 
-      value: isConnected ? (walletBalance?.tokens?.length || 0).toString() : '--', 
-      change: 'HTS tokens', 
+    {
+      label: 'Stable Reserve %',
+      value: `${stableReservePercent}%`,
+      change: `Capital: $${capital.toLocaleString()}`,
       isPositive: true,
-      icon: Activity 
+      icon: Percent,
+    },
+    {
+      label: 'Risk-Adjusted Yield %',
+      value: `${capitalEfficiency.toFixed(1)}%`,
+      change: `${worstCaseDrawdown}% worst case`,
+      isPositive: capitalEfficiency > 0,
+      icon: TrendingUp,
     },
   ]
+
   return (
-    <motion.div 
+    <motion.div
       className="glass-card p-6 h-full"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -126,43 +70,8 @@ export default function PortfolioOverview({ isConnected, accountId, walletBalanc
     >
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-white">Portfolio Overview</h2>
-          {isConnected && accountId && (
-            <p className="text-sm text-dark-400 mt-1">Account: {accountId}</p>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {isConnected && (
-            <>
-              <motion.button
-                onClick={handleRefresh}
-                disabled={isLoading}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-dark-800 border border-dark-700 text-dark-300 hover:text-white hover:border-gold-400/30 transition-all disabled:opacity-50"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                <span className="text-xs hidden sm:inline">Refresh</span>
-              </motion.button>
-              <motion.button
-                onClick={handleScan}
-                disabled={isScanning}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold-400/10 border border-gold-400/30 text-gold-400 hover:bg-gold-400/20 transition-all disabled:opacity-50"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Scan className={`w-4 h-4 ${isScanning ? 'animate-pulse' : ''}`} />
-                <span className="text-xs hidden sm:inline">{isScanning ? 'Scanning...' : 'Scan Portfolio'}</span>
-              </motion.button>
-            </>
-          )}
-          <div className="flex items-center gap-2 text-sm text-dark-400">
-            <motion.div 
-              className="w-2 h-2 rounded-full bg-gold-400"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </div>
+          <h2 className="text-xl font-semibold text-white">Treasury Overview</h2>
+          <p className="text-sm text-dark-400 mt-1">Autonomous Stable Treasury Agent for USD₮ & XAU₮</p>
         </div>
       </div>
 
@@ -175,11 +84,10 @@ export default function PortfolioOverview({ isConnected, accountId, walletBalanc
           >
             <DollarSign className="w-8 h-8 text-gold-400" />
           </motion.div>
-          <p className="text-lg">Connect your wallet to view portfolio</p>
+          <p className="text-lg">Connect wallet to initialize treasury access</p>
         </div>
       ) : (
         <>
-          {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon
@@ -208,47 +116,53 @@ export default function PortfolioOverview({ isConnected, accountId, walletBalanc
             })}
           </div>
 
-          {/* Chart */}
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FFD700" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#FFD700" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#64748b', fontSize: 12 }}
-                />
-                <YAxis 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#64748b', fontSize: 12 }}
-                  tickFormatter={(value) => `$${value / 1000}k`}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: '#0A0A0F',
-                    border: '1px solid rgba(255, 215, 0, 0.3)',
-                    borderRadius: '8px',
-                    color: '#fff'
-                  }}
-                  formatter={(value: number) => [`$${value.toLocaleString()}`, 'Value']}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#FFD700" 
-                  strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorValue)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="mb-4 rounded-xl bg-dark-900/40 border border-gold-400/10 p-4">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 text-sm">
+              <div>
+                <p className="text-dark-400 text-xs">USD₮ Reserve</p>
+                <p className="text-white font-semibold">${usdtReserve.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-dark-400 text-xs">XAU₮ Hedge</p>
+                <p className="text-white font-semibold">${xautHedge.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-dark-400 text-xs">Yield Deployed</p>
+                <p className="text-white font-semibold">${yieldDeployed.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-dark-400 text-xs">Capital Efficiency</p>
+                <p className="text-gold-400 font-semibold">{capitalEfficiency.toFixed(1)}%</p>
+              </div>
+              <div>
+                <p className="text-dark-400 text-xs">Worst Case Drawdown</p>
+                <p className="text-red-400 font-semibold">{worstCaseDrawdown}%</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm text-dark-400 mb-2">Treasury Capital Allocation History</p>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(value) => `$${value / 1000}k`} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#0A0A0F',
+                      border: '1px solid rgba(255, 215, 0, 0.3)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Line type="monotone" dataKey="reserve" name="Stable Reserve" stroke="#FFD700" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="yield" name="Yield Deployment" stroke="#00FFA3" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="hedge" name="Hedge Allocation" stroke="#7C3AED" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </>
       )}

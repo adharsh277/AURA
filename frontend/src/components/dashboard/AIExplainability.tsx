@@ -27,18 +27,18 @@ interface AISuggestion {
 const mockSuggestion: AISuggestion = {
   id: 'suggestion-1',
   actionType: 'rebalance',
-  title: 'Optimize Portfolio Allocation',
-  description: 'AI recommends rebalancing to reduce volatility exposure and optimize for stable yield.',
+  title: 'Optimize Treasury Allocation',
+  description: 'AI recommends rebalancing reserve, hedge, and yield lanes for stable capital performance.',
   steps: [
-    'Transfer 10 HBAR to Treasury Contract',
-    'Stake 5 HBAR on SaucerSwap for 12.5% APY',
-    'Hold remaining balance for liquidity',
-    'Monitor for 24h before next rebalance'
+    'Set USD₮ reserve to 30% of treasury capital',
+    'Deploy 45% to yield strategy lane',
+    'Allocate 25% to XAU₮ hedge lane',
+    'Re-evaluate mode in next autonomous cycle'
   ],
   confidence: 84,
   riskBefore: 72,
   riskAfter: 45,
-  expectedOutcome: 'Reduced risk by 27 points with +$45 estimated monthly yield',
+  expectedOutcome: 'Reduced risk by 27 points with +7.2% risk-adjusted expected return',
   amount: 10
 }
 
@@ -131,7 +131,7 @@ export default function AIExplainability({ isConnected, accountId, onExecute }: 
           </motion.div>
           <div>
             <h2 className="text-xl font-semibold text-white">AI Decision Explainer</h2>
-            <p className="text-sm text-dark-400">Transparent AI reasoning for every action</p>
+            <p className="text-sm text-dark-400">Transparent treasury reasoning for every autonomous action</p>
           </div>
         </div>
         <motion.div
@@ -147,7 +147,7 @@ export default function AIExplainability({ isConnected, accountId, onExecute }: 
       {!isConnected ? (
         <div className="flex flex-col items-center justify-center h-32 text-dark-400">
           <Brain className="w-12 h-12 mb-3 text-dark-600" />
-          <p>Connect wallet to see AI reasoning</p>
+          <p>Connect wallet to see treasury reasoning</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -230,7 +230,7 @@ export default function AIExplainability({ isConnected, accountId, onExecute }: 
                   <div className="flex items-start gap-3">
                     <Info className="w-5 h-5 text-dark-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm text-dark-300">Ready to execute this optimization?</p>
+                      <p className="text-sm text-dark-300">Ready to execute this treasury optimization?</p>
                       <p className="text-xs text-dark-500 mt-1">Your wallet will prompt you to sign the transaction.</p>
                     </div>
                   </div>
@@ -242,7 +242,7 @@ export default function AIExplainability({ isConnected, accountId, onExecute }: 
                     whileTap={{ scale: 0.98 }}
                   >
                     <Zap className="w-5 h-5" />
-                    Execute Optimization
+                    Execute Treasury Plan
                   </motion.button>
                 </motion.div>
               )}
@@ -256,7 +256,7 @@ export default function AIExplainability({ isConnected, accountId, onExecute }: 
                 >
                   <Loader2 className="w-10 h-10 text-gold-400 animate-spin mb-4" />
                   <p className="text-lg font-medium text-white">Waiting for Wallet Approval</p>
-                  <p className="text-sm text-dark-400 mt-2">Please sign the transaction in HashPack</p>
+                  <p className="text-sm text-dark-400 mt-2">Please sign the transaction in MetaMask</p>
                 </motion.div>
               )}
 
@@ -273,7 +273,7 @@ export default function AIExplainability({ isConnected, accountId, onExecute }: 
                     </div>
                     <div>
                       <p className="text-lg font-medium text-white">Transaction Successful!</p>
-                      <p className="text-sm text-dark-400">Your portfolio has been optimized</p>
+                      <p className="text-sm text-dark-400">Treasury allocation has been updated</p>
                     </div>
                   </div>
                   
@@ -284,13 +284,13 @@ export default function AIExplainability({ isConnected, accountId, onExecute }: 
                         <p className="text-sm text-white font-mono">{executionResult.transactionId}</p>
                       </div>
                       <a
-                        href={`https://hashscan.io/testnet/transaction/${executionResult.transactionId}`}
+                        href="#"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-dark-800 text-gold-400 hover:bg-dark-700 transition-colors"
                       >
                         <ExternalLink className="w-4 h-4" />
-                        <span className="text-sm">View on Explorer</span>
+                        <span className="text-sm">Decision Logged</span>
                       </a>
                     </div>
                   )}

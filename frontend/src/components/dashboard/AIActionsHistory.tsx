@@ -10,48 +10,48 @@ interface AIActionsHistoryProps {
 const actions = [
   {
     id: 1,
-    type: 'swap',
-    action: 'Swapped 1,000 USDC to HBAR',
-    reason: 'HBAR undervalued - bullish momentum detected',
+    type: 'rebalance',
+    action: 'Raised USD₮ reserve to 30%',
+    reason: 'Reserve threshold enforcement',
     status: 'completed',
     timestamp: '2 min ago',
-    profit: '+$45.20'
+    profit: 'Safety lock applied'
   },
   {
     id: 2,
     type: 'stake',
-    action: 'Staked 5,000 HBAR',
-    reason: 'High yield opportunity on SaucerSwap',
+    action: 'Deployed 4,500 USD₮ to yield lane',
+    reason: 'Risk-adjusted APY above threshold',
     status: 'completed',
     timestamp: '15 min ago',
-    profit: '+8.5% APY'
+    profit: '+7.2% expected return'
   },
   {
     id: 3,
     type: 'protect',
-    action: 'Set stop-loss on SAUCE',
+    action: 'Increased XAU₮ hedge allocation',
     reason: 'Volatility spike detected',
     status: 'active',
     timestamp: '1 hour ago',
-    profit: 'Protected'
+    profit: 'Hedge mode active'
   },
   {
     id: 4,
     type: 'rebalance',
-    action: 'Rebalanced portfolio',
-    reason: 'Risk level exceeded threshold',
+    action: 'Shifted to SAFE mode',
+    reason: 'Capital preservation trigger',
     status: 'completed',
     timestamp: '3 hours ago',
-    profit: '-0.5% fees'
+    profit: 'Drawdown limited'
   },
   {
     id: 5,
     type: 'swap',
-    action: 'Sold 2,000 SAUCE',
-    reason: 'Profit target reached',
+    action: 'Reduced yield deployment by 10%',
+    reason: 'Worst-case exposure rebalanced',
     status: 'completed',
     timestamp: '1 day ago',
-    profit: '+$234.50'
+    profit: 'Exposure reduced'
   },
 ]
 
@@ -83,7 +83,7 @@ export default function AIActionsHistory({ isConnected }: AIActionsHistoryProps)
       transition={{ duration: 0.5, delay: 0.3 }}
     >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">AI Actions</h2>
+        <h2 className="text-xl font-semibold text-white">AI Treasury Actions</h2>
         <motion.button
           className="text-sm text-gold-400 hover:text-gold-300 transition-colors"
           whileHover={{ scale: 1.02 }}
@@ -95,7 +95,7 @@ export default function AIActionsHistory({ isConnected }: AIActionsHistoryProps)
       {!isConnected ? (
         <div className="flex flex-col items-center justify-center h-48 text-dark-400">
           <Bot className="w-12 h-12 mb-3 text-dark-600" />
-          <p>Connect wallet to view AI actions</p>
+          <p>Connect wallet to view treasury actions</p>
         </div>
       ) : (
         <div className="space-y-3 max-h-80 overflow-y-auto pr-2">

@@ -3,12 +3,25 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Bot, Zap, Shield, TrendingUp, Play, Pause, Settings } from 'lucide-react'
+import { AutonomousTreasury } from '@/types'
 
 interface AIAgentStatusProps {
   isConnected: boolean
+  userWalletAddress: string | null
+  treasury: AutonomousTreasury | null
+  isCreatingTreasury: boolean
+  treasuryError: string | null
+  onCreateTreasury: () => Promise<void>
 }
 
-export default function AIAgentStatus({ isConnected }: AIAgentStatusProps) {
+export default function AIAgentStatus({
+  isConnected,
+  userWalletAddress,
+  treasury,
+  isCreatingTreasury,
+  treasuryError,
+  onCreateTreasury
+}: AIAgentStatusProps) {
   const [isAgentActive, setIsAgentActive] = useState(true)
   const [isScanning, setIsScanning] = useState(false)
 
@@ -19,9 +32,12 @@ export default function AIAgentStatus({ isConnected }: AIAgentStatusProps) {
 
   const agentMetrics = [
     { label: 'Risk Level', value: 'Medium', color: 'text-amber-400' },
-    { label: 'Strategy', value: 'Growth', color: 'text-gold-400' },
+    { label: 'Strategy', value: treasury ? 'Autonomous Treasury' : 'Awaiting Treasury', color: 'text-gold-400' },
+    { label: 'Mode', value: treasury?.analytics.mode || 'SAFE', color: 'text-green-400' },
     { label: 'Status', value: isAgentActive ? 'Active' : 'Paused', color: isAgentActive ? 'text-gold-400' : 'text-dark-400' },
   ]
+
+  const formatAddress = (address: string) => `${address.slice(0, 8)}...${address.slice(-6)}`
 
   return (
     <motion.div 
@@ -119,6 +135,65 @@ export default function AIAgentStatus({ isConnected }: AIAgentStatusProps) {
         ))}
       </div>
 
+      <div className="mb-6 p-3 rounded-xl bg-dark-800/50 border border-dark-700 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-dark-400">User Wallet (Optional)</span>
+          <span className={`text-xs font-medium ${userWalletAddress ? 'text-gold-400' : 'text-dark-500'}`}>
+            {userWalletAddress ? formatAddress(userWalletAddress) : 'Not connected'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-dark-400">Agent Wallet (Primary)</span>
+          <span className={`text-xs font-medium ${treasury ? 'text-green-400' : 'text-dark-500'}`}>
+            {treasury ? formatAddress(treasury.agentWallet.walletAddress) : 'Not created'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-dark-400">Control Mode</span>
+          <span className={`text-xs font-medium ${treasury?.autonomyState.isAutonomous ? 'text-green-400' : 'text-dark-500'}`}>
+            {treasury?.autonomyState.isAutonomous ? 'Autonomous' : 'Manual'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-dark-400">Expected Return</span>
+          <span className="text-xs font-medium text-gold-400">
+            {treasury ? `${treasury.analytics.expectedReturnPercent}%` : '--'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-dark-400">Worst Case Exposure</span>
+          <span className="text-xs font-medium text-red-400">
+            {treasury ? `${treasury.analytics.worstCaseExposurePercent}%` : '--'}
+          </span>
+        </div>
+        <div className="pt-1 border-t border-dark-700">
+          <span className="text-[10px] text-dark-400">Last Decision Hash</span>
+          <p className="text-[10px] font-mono text-green-400 mt-0.5 break-all">
+            {treasury?.analytics.lastDecisionHash || 'No decision logged yet'}
+          </p>
+        </div>
+      </div>
+
+      {!treasury && (
+        <motion.button
+          onClick={onCreateTreasury}
+          disabled={isCreatingTreasury}
+          className={`w-full py-3 rounded-xl font-semibold transition-all mb-4 ${
+            isCreatingTreasury ? 'bg-dark-800 text-dark-400 cursor-not-allowed' : 'btn-primary'
+          }`}
+          whileHover={!isCreatingTreasury ? { scale: 1.02 } : {}}
+          whileTap={!isCreatingTreasury ? { scale: 0.98 } : {}}
+        >
+          {isCreatingTreasury ? 'Creating Autonomous Treasury...' : 'Create Autonomous Treasury'}
+        </motion.button>
+      )}
+
+      {treasuryError && (
+        <div className="mb-4 p-2 rounded-lg border border-red-400/30 bg-red-400/10 text-xs text-red-400">
+          {treasuryError}
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <motion.button
@@ -175,7 +250,7 @@ export default function AIAgentStatus({ isConnected }: AIAgentStatusProps) {
         )}
         <div className="flex items-center justify-center gap-2">
           <Zap className={`w-5 h-5 ${isScanning ? 'animate-spin' : ''}`} />
-          <span>{isScanning ? 'Scanning Portfolio...' : 'Scan & Optimize'}</span>
+          <span>{isScanning ? 'Scanning Treasury...' : 'Scan & Optimize'}</span>
         </div>
       </motion.button>
     </motion.div>
