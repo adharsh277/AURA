@@ -2,17 +2,17 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AURA - Autonomous Unified Resource Agent',
-  description: 'AI agent that autonomously manages, optimizes, and protects your crypto portfolio on Hedera.',
-  keywords: ['Hedera', 'AI', 'Crypto', 'Portfolio', 'DeFi', 'Web3', 'Blockchain'],
+  title: 'AURA-T - Autonomous Stable Treasury Agent',
+  description: 'Autonomous Stable Treasury Agent managing USD₮ and XAU₮ capital with transparent AI decisions.',
+  keywords: ['AURA-T', 'AI', 'Treasury', 'USD₮', 'XAU₮', 'DeFi', 'Autonomous Agent'],
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
     apple: '/favicon.svg',
   },
   openGraph: {
-    title: 'AURA - AI-Powered Portfolio Management',
-    description: 'Autonomous AI agent for crypto portfolio optimization on Hedera',
+    title: 'AURA-T - Autonomous Stable Treasury Agent',
+    description: 'AI-managed stable treasury operations for USD₮ and XAU₮ capital',
     type: 'website',
   },
 }
