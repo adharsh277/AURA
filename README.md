@@ -95,10 +95,37 @@ Designed for DAO treasuries, startups, and on-chain capital managers.
 - On-chain payroll treasuries
 
 ### Current Implementation Status
-- **Treasury accounting is currently simulated for MVP demo purposes.**
-- Decision logging uses cryptographic hashing and is displayed live.
-- Autonomy mode, policy engine, stress simulator, and guardian lock are fully wired in the demo flow.
-- Live USD₮/XAU₮ on-chain settlement is **not** fully wired yet in this MVP.
+- ✅ **On-chain execution path is wired from Next.js → MetaMask → Sepolia TreasuryVault (`rebalance`)**
+- ✅ **`onlyAgent` authorization is enforced on-chain and verified against deployed agent address**
+- ✅ **UI captures and displays real tx hash and explorer link for rebalance transactions**
+- ✅ **Dashboard fetches real MockUSDT balances (user + vault) and listens for `Rebalanced` events**
+- ✅ **Updated `TreasuryVault` contract with SAFE mode guards is deployed on Sepolia**
+- ✅ **Frontend contract config is updated to the latest deployed vault address (`0x25F288A9d86e165126fBE5e4C8367FF9B1E0ED7D`)**
+- ⚠️ **Treasury policy/memory/guardian analytics in dashboard are currently hybrid (real tx + simulated strategy analytics)**
+- ⚠️ **Production-grade persistence/indexing for event history is not complete yet (currently in-memory/UI-session level)**
+
+## 📊 Coverage Tracker (Completed vs Remaining)
+
+### ✅ Completed
+- Core autonomy engines (`observe/evaluate/plan/execute/log/adapt`)
+- Treasury API (`create/status/autonomy/stress-test`)
+- Dual autonomy mode UI (`Supervised` / `Full Autonomous`)
+- Strategy memory table + treasury policy panel + guardian lock display
+- On-chain proof block (hash, tx ID, explorer, signer, policy hash)
+- Real MetaMask signing flow for Sepolia rebalance transactions
+- Sepolia network guard (`chainId = 11155111`) and wallet-based execution path
+- Updated SAFE mode contract (`TreasuryVault.sol`) added in backend contracts
+- Frontend now points to latest Sepolia vault deployment
+
+### 🟡 Partially Completed
+- Economic analytics currently combine real transaction flow with simulated model outputs
+- Stress scenarios and guardian logic are fully functional in app flow, but not fully contract-enforced
+
+### ⏳ Remaining
+- Move guardian constraints fully on-chain in contract-level enforcement
+- Persist strategy/performance/event history in durable storage/indexer
+- Replace remaining simulated treasury analytics with fully on-chain or oracle-backed values
+- Add automated preflight checks in UI for `agent()` authorization and vault liquidity before tx submission
 
 ## 🎨 Screenshots
 
