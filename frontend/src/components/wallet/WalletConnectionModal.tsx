@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Wallet, ExternalLink, AlertCircle, Check, Loader2 } from 'lucide-react'
 
 interface WalletOption {
-  id: 'hashpack' | 'metamask' | 'xverse'
+  id: 'metamask' | 'xverse'
   name: string
   description: string
   icon: string
@@ -15,19 +15,11 @@ interface WalletOption {
 
 const walletOptions: WalletOption[] = [
   {
-    id: 'hashpack',
-    name: 'HashPack',
-    description: 'Hedera Native Wallet',
-    icon: '🟣',
-    status: 'available'
-  },
-  {
     id: 'metamask',
     name: 'MetaMask',
-    description: 'EVM Compatible',
+    description: 'EVM Treasury Authorization',
     icon: '🦊',
-    status: 'coming-soon',
-    statusText: 'Coming Soon'
+    status: 'available'
   },
   {
     id: 'xverse',
@@ -42,7 +34,7 @@ const walletOptions: WalletOption[] = [
 interface WalletConnectionModalProps {
   isOpen: boolean
   onClose: () => void
-  onConnect: (provider: 'hashpack' | 'metamask' | 'xverse') => Promise<void>
+  onConnect: (provider: 'metamask' | 'xverse') => Promise<void>
   isConnecting: boolean
   error: string | null
 }
@@ -185,7 +177,7 @@ export default function WalletConnectionModal({
                         <Loader2 className="w-6 h-6 text-gold-400 animate-spin" />
                       </motion.div>
                     </div>
-                    <h3 className="text-base font-medium text-white mt-4">Connecting to HashPack</h3>
+                    <h3 className="text-base font-medium text-white mt-4">Connecting to {selectedWallet === 'xverse' ? 'Xverse' : 'MetaMask'}</h3>
                     <p className="text-xs text-dark-400 mt-1 text-center">
                       Approve the connection in your wallet
                     </p>
