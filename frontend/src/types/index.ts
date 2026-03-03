@@ -119,6 +119,7 @@ export interface AutonomousTreasury {
   }
   autonomyState: {
     mode: 'Observe-Evaluate-Plan-Execute-Log-Adapt'
+    level: 'SUPERVISED' | 'FULL_AUTONOMOUS'
     isAutonomous: boolean
   }
   analytics: {
@@ -131,6 +132,53 @@ export interface AutonomousTreasury {
     lastDecisionHash: string
     worstCaseExposurePercent: number
   }
+  strategyPerformance: Array<{
+    mode: 'SAFE' | 'YIELD' | 'HEDGE'
+    timesActivated: number
+    avgReturnPercent: number
+    maxDrawdownPercent: number
+  }>
+  treasuryPolicy: {
+    recheckIntervalMinutes: number
+    maxDeployPercent: number
+    minReservePercent: number
+    maxDrawdownTolerancePercent: number
+    hedgeVolatilityTrigger: number
+    rules: Array<{
+      id: string
+      label: string
+      value: string
+    }>
+  }
+  onchainProof: {
+    decisionHash: string
+    transactionId: string
+    explorerUrl: string
+    signedAgentWalletAddress: string
+    policyVersionHash: string
+  }
+  riskModel: {
+    volatilityInput: string
+    apyWeighting: string
+    hedgeCorrelation: string
+    drawdownMethod: string
+  }
+  capitalGuardian: {
+    enabled: boolean
+    isLocked: boolean
+    lockReason: string | null
+    thresholdDrawdownPercent: number
+  }
+  lastStressTest: {
+    scenario: 'market_crash' | 'yield_collapse' | 'liquidity_shock'
+    postShockCapital: number
+    reserveAfterShock: number
+    hedgeAfterShock: number
+    yieldAfterShock: number
+    estimatedDrawdownPercent: number
+    guardianTriggered: boolean
+    executedAt: string
+  } | null
 }
 
 export interface TokenBalance {

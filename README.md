@@ -53,15 +53,22 @@ Designed for DAO treasuries, startups, and on-chain capital managers.
 - Added autonomous treasury routes:
 	- `POST /api/agent/treasury/create`
 	- `GET /api/agent/treasury/status`
+	- `POST /api/agent/treasury/autonomy`
+	- `POST /api/agent/treasury/stress-test`
 - Treasury payload now includes:
 	- USD₮ reserve
 	- XAU₮ hedge
 	- yield deployed
+	- autonomy level (`SUPERVISED` / `FULL_AUTONOMOUS`)
 	- mode (`SAFE` / `YIELD` / `HEDGE`)
 	- expected return %
 	- worst-case drawdown %
 	- worst-case exposure %
-	- last decision hash
+	- strategy performance memory (SAFE/YIELD/HEDGE history)
+	- treasury policy rules + policy version hash
+	- on-chain proof metadata (decision hash, tx ID, explorer link, signed agent wallet)
+	- risk model details
+	- capital guardian lock state
 
 ### Frontend (Implemented)
 - Reframed dashboard to treasury-first language:
@@ -69,16 +76,28 @@ Designed for DAO treasuries, startups, and on-chain capital managers.
 	- `Your Assets` → `Treasury Allocation`
 - Removed HashPack from wallet connect UI; MetaMask is primary and Xverse optional.
 - Added same-origin frontend API proxies for treasury create/status to avoid browser `localhost:3001` fetch issues.
+- Added same-origin frontend API proxies for treasury autonomy and stress test actions.
 - Updated AI panel with:
-	- Mode
-	- Last Decision Hash
-	- Expected Return
-	- Worst Case Exposure
+	- Dual autonomy mode switch (`Supervised` / `Full Autonomous`)
+	- Strategy performance memory table
+	- Treasury policy engine display
+	- On-chain proof block (hash + tx ID + explorer + signer + policy hash)
+	- Expected return and worst-case exposure
+	- Expandable risk model details
+	- Stress scenario simulator (market crash / yield collapse / liquidity shock)
+	- Capital guardian lock status
 - Updated landing and metadata branding to `AURA-T` treasury positioning.
+
+### Designed For (Explicit Use Cases)
+- DAO treasuries
+- Crypto-native startups
+- Stablecoin reserve managers
+- On-chain payroll treasuries
 
 ### Current Implementation Status
 - **Treasury accounting is currently simulated for MVP demo purposes.**
 - Decision logging uses cryptographic hashing and is displayed live.
+- Autonomy mode, policy engine, stress simulator, and guardian lock are fully wired in the demo flow.
 - Live USD₮/XAU₮ on-chain settlement is **not** fully wired yet in this MVP.
 
 ## 🎨 Screenshots

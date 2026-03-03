@@ -16,6 +16,8 @@ export default function Dashboard() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
   const [treasury, setTreasury] = useState<AutonomousTreasury | null>(null)
   const [isCreatingTreasury, setIsCreatingTreasury] = useState(false)
+  const [isUpdatingAutonomy, setIsUpdatingAutonomy] = useState(false)
+  const [isRunningStress, setIsRunningStress] = useState(false)
   const [treasuryError, setTreasuryError] = useState<string | null>(null)
   const { wallet, isConnecting, error, connect, disconnect, signTransaction } = useWallet()
 
@@ -78,6 +80,66 @@ export default function Dashboard() {
     }
   }
 
+  const setAutonomyLevel = async (level: 'SUPERVISED' | 'FULL_AUTONOMOUS') => {
+    if (!treasury) {
+      return
+    }
+
+    setIsUpdatingAutonomy(true)
+    setTreasuryError(null)
+
+    try {
+      const response = await fetch('/api/agent/treasury/autonomy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ level })
+      })
+
+      const data = await response.json().catch(() => ({ error: 'Failed to update autonomy level' }))
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update autonomy level')
+      }
+
+      setTreasury(data.treasury)
+    } catch (err) {
+      setTreasuryError((err as Error).message)
+    } finally {
+      setIsUpdatingAutonomy(false)
+    }
+  }
+
+  const runStressScenario = async (scenario: 'market_crash' | 'yield_collapse' | 'liquidity_shock') => {
+    if (!treasury) {
+      return
+    }
+
+    setIsRunningStress(true)
+    setTreasuryError(null)
+
+    try {
+      const response = await fetch('/api/agent/treasury/stress-test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ scenario })
+      })
+
+      const data = await response.json().catch(() => ({ error: 'Failed to run stress test' }))
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to run stress test')
+      }
+
+      setTreasury(data.treasury)
+    } catch (err) {
+      setTreasuryError((err as Error).message)
+    } finally {
+      setIsRunningStress(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-dark-950 relative overflow-hidden">
       {/* Background */}
@@ -122,8 +184,12 @@ export default function Dashboard() {
                 userWalletAddress={wallet?.accountId || null}
                 treasury={treasury}
                 isCreatingTreasury={isCreatingTreasury}
+                isUpdatingAutonomy={isUpdatingAutonomy}
+                isRunningStress={isRunningStress}
                 treasuryError={treasuryError}
                 onCreateTreasury={createAutonomousTreasury}
+                onSetAutonomyLevel={setAutonomyLevel}
+                onRunStressScenario={runStressScenario}
               />
             </div>
           </div>
