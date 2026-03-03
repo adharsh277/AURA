@@ -25,7 +25,7 @@ export default function Navbar({ isConnected, walletAddress, onConnect, onDiscon
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'portfolio', label: 'Portfolio', icon: PieChart },
+    { id: 'treasury', label: 'Treasury', icon: PieChart },
     { id: 'ai-agent', label: 'AI Agent', icon: Bot },
     { id: 'history', label: 'History', icon: History },
   ]
@@ -56,7 +56,7 @@ export default function Navbar({ isConnected, walletAddress, onConnect, onDiscon
                 transition={{ duration: 2, repeat: Infinity }}
               />
             </div>
-            <span className="text-2xl font-bold text-gradient">AURA</span>
+            <span className="text-2xl font-bold text-gradient">AURA-T</span>
           </motion.div>
 
           {/* Desktop Navigation */}
