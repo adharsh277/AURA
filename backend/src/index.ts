@@ -17,6 +17,8 @@ import hederaRoutes from './routes/hedera';
 // Import services
 import { AIAgentService } from './services/AIAgentService';
 import { WebSocketService } from './services/WebSocketService';
+import { runAgent } from './core/agentLoop';
+import { AgentState } from './core/memoryStore';
 
 const app = express();
 const server = http.createServer(app);
@@ -63,6 +65,38 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   res.status(500).json({ error: 'Internal server error' });
 });
 
+async function runAURATDemo(): Promise<void> {
+  const state: AgentState = {
+    capital: 10000,
+    memory: {
+      lastObservation: null,
+      lastStrategy: null,
+      performance: [],
+    },
+  };
+
+  console.log('\n=== AURA-T DEMO: Autonomous Stable Treasury Agent ===');
+  console.log('Starting capital: 10000 USD₮\n');
+
+  await runAgent(state);
+  const firstMode = state.memory.lastStrategy?.mode;
+
+  let switched = false;
+  for (let attempt = 1; attempt <= 20; attempt++) {
+    await runAgent(state);
+    const currentMode = state.memory.lastStrategy?.mode;
+    if (firstMode && currentMode && currentMode !== firstMode) {
+      console.log(`Mode switch detected: ${firstMode} → ${currentMode}`);
+      switched = true;
+      break;
+    }
+  }
+
+  if (!switched) {
+    console.log('Mode switch not observed within retry limit.');
+  }
+}
+
 // Start server
 const PORT = process.env.PORT || 3001;
 
@@ -81,6 +115,10 @@ server.listen(PORT, () => {
   
   // Start AI Agent
   aiAgent.start();
+
+  runAURATDemo().catch((error: Error) => {
+    console.error('AURA-T demo failed:', error.message);
+  });
 });
 
 export default app;
