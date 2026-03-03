@@ -1,12 +1,11 @@
-# 🤖 AURA - Autonomous Unified Resource Agent
+# 🤖 AURA-T - Autonomous Stable Treasury Agent
 
 <div align="center">
 
-![AURA Logo](https://img.shields.io/badge/AURA-AI%20Portfolio%20Agent-00D1FF?style=for-the-badge&logo=robot&logoColor=white)
+![AURA Logo](https://img.shields.io/badge/AURA--T-Stable%20Treasury%20Agent-00D1FF?style=for-the-badge&logo=robot&logoColor=white)
 
-**AI agent that autonomously manages, optimizes, and protects your crypto portfolio on Hedera.**
+**Autonomous Stable Treasury Agent for USD₮ & XAU₮**
 
-[![Hedera](https://img.shields.io/badge/Built%20on-Hedera-00D1FF?style=flat-square&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA)](https://hedera.com)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://typescriptlang.org)
 
@@ -16,16 +15,71 @@
 
 ## 🚀 Overview
 
-AURA is a next-generation AI-powered portfolio management system built on Hedera. It combines the power of artificial intelligence with the speed and security of Hedera Hashgraph to provide autonomous, intelligent management of your crypto assets.
+AURA-T is an autonomous stable treasury agent managing USD₮ and XAU₮ capital.
+It continuously observes market conditions, evaluates risk-adjusted yield opportunities, dynamically allocates capital between yield, hedge, and safe modes, and logs decisions on-chain for transparency.
+The agent maintains a stable reserve threshold, enforces capital preservation rules, and adapts strategies without manual intervention.
+Designed for DAO treasuries, startups, and on-chain capital managers.
 
 ### ✨ Key Features
 
-- **🤖 Autonomous AI Agent** - Makes intelligent decisions and executes Hedera transactions automatically
-- **📊 Smart Portfolio Optimization** - Maximizes yield while minimizing risk
-- **📈 Real-time Monitoring Dashboard** - Live portfolio value, AI decisions, and performance metrics
-- **🧠 AI Explainability Panel** - Understand why AI made each decision with risk and confidence scores
-- **🛡️ Risk Management** - Automatic stop-loss, portfolio protection, and risk assessment
-- **⚡ Hedera Integration** - Fast, secure, and low-cost transactions
+- **🤖 Autonomous Agent Loop** - Observe → Evaluate → Plan → Execute → Log → Adapt
+- **💰 Stable Treasury Accounting** - USD₮ reserve, XAU₮ hedge, yield deployment buckets
+- **🧠 Economic Explainability** - Expected return, capital efficiency, drawdown visibility
+- **🛡️ Safety Guardrails** - Never exceed treasury capital; deterministic fallback to safe allocation
+- **🔐 Wallet Architecture** - Optional user wallet + primary WDK-style agent wallet flow
+- **🧾 Transparent Decision Proofs** - SHA-256 decision hashes surfaced in the UI
+
+## ✅ What We Updated Till Now
+
+### Backend (Implemented)
+- Added AURA-T core architecture in `backend/src/core/`:
+	- `agentLoop.ts`
+	- `strategyEngine.ts`
+	- `economicEngine.ts` (includes `economicReport`)
+	- `riskEngine.ts`
+	- `memoryStore.ts`
+	- `safetyGuard.ts`
+	- `executionEngine.ts`
+	- `onchainLogger.ts`
+- Wired demo flow from backend startup and verified execution output with:
+	- observation
+	- strategy selection
+	- allocation
+	- economic report
+	- on-chain decision hash
+	- mode switch across runs
+
+### Treasury API (Implemented)
+- Added autonomous treasury routes:
+	- `POST /api/agent/treasury/create`
+	- `GET /api/agent/treasury/status`
+- Treasury payload now includes:
+	- USD₮ reserve
+	- XAU₮ hedge
+	- yield deployed
+	- mode (`SAFE` / `YIELD` / `HEDGE`)
+	- expected return %
+	- worst-case drawdown %
+	- worst-case exposure %
+	- last decision hash
+
+### Frontend (Implemented)
+- Reframed dashboard to treasury-first language:
+	- `Portfolio Overview` → `Treasury Overview`
+	- `Your Assets` → `Treasury Allocation`
+- Removed HashPack from wallet connect UI; MetaMask is primary and Xverse optional.
+- Added same-origin frontend API proxies for treasury create/status to avoid browser `localhost:3001` fetch issues.
+- Updated AI panel with:
+	- Mode
+	- Last Decision Hash
+	- Expected Return
+	- Worst Case Exposure
+- Updated landing and metadata branding to `AURA-T` treasury positioning.
+
+### Current Implementation Status
+- **Treasury accounting is currently simulated for MVP demo purposes.**
+- Decision logging uses cryptographic hashing and is displayed live.
+- Live USD₮/XAU₮ on-chain settlement is **not** fully wired yet in this MVP.
 
 ## 🎨 Screenshots
 
@@ -51,11 +105,8 @@ The dashboard features a futuristic cyberpunk design with:
 - **WebSocket** - Real-time communication
 - **OpenAI API** - AI decision making
 
-### Blockchain
-- **Hedera SDK** - Blockchain integration
-- **Hedera Smart Contracts** - Portfolio management
-- **Hedera Token Service (HTS)** - Token operations
-- **Hedera Consensus Service (HCS)** - Action logging
+### Agent Core
+- **AURA-T Core Engines** - Risk, strategy, economic planning, execution, memory, safety, logging
 
 ## 📁 Project Structure
 
@@ -77,6 +128,15 @@ AURA/
 │
 ├── backend/                  # Node.js backend server
 │   ├── src/
+│   │   ├── core/            # AURA-T autonomous treasury core
+│   │   │   ├── agentLoop.ts
+│   │   │   ├── strategyEngine.ts
+│   │   │   ├── economicEngine.ts
+│   │   │   ├── riskEngine.ts
+│   │   │   ├── memoryStore.ts
+│   │   │   ├── safetyGuard.ts
+│   │   │   ├── executionEngine.ts
+│   │   │   └── onchainLogger.ts
 │   │   ├── routes/          # API endpoints
 │   │   │   ├── agent.ts     # AI agent routes
 │   │   │   ├── portfolio.ts # Portfolio routes
@@ -101,7 +161,7 @@ AURA/
 
 - Node.js 18+
 - npm or yarn
-- Hedera Testnet Account (get one at [portal.hedera.com](https://portal.hedera.com))
+- MetaMask (for optional user wallet connect in demo)
 
 ### Installation
 
@@ -174,17 +234,17 @@ STOP_LOSS_PERCENTAGE=0.1
 
 ## 🤖 How It Works
 
-### Step 1: Connect Wallet
-User connects their Hedera wallet (HashPack/MetaMask Snap/WalletConnect). AI reads balances, tokens, and positions.
+### Step 1: Connect User Wallet (Optional)
+User connects MetaMask for deposit/withdraw authorization.
 
-### Step 2: AI Analyzes Portfolio
-AI agent evaluates risk level, market conditions, yield opportunities, and volatility using price feeds and Hedera network data.
+### Step 2: Create Autonomous Treasury
+User clicks `Create Autonomous Treasury`. System provisions an agent wallet and funds treasury lanes.
 
-### Step 3: AI Suggests & Executes Strategy
-AI decides optimal actions (invest, stake, move funds, reduce exposure) and executes automatically using Hedera smart contracts.
+### Step 3: Agent Takes Control
+Agent runs the loop: Observe → Evaluate → Plan → Execute → Log → Adapt.
 
 ### Step 4: Continuous Management
-Agent runs continuously, monitoring market conditions, adapting strategy, and protecting funds.
+Agent continuously adapts reserve, hedge, and yield allocation with transparent decision proofs.
 
 ## 📡 API Endpoints
 
@@ -197,21 +257,11 @@ Agent runs continuously, monitoring market conditions, adapting strategy, and pr
 | POST | `/api/agent/scan` | Trigger portfolio scan |
 | GET | `/api/agent/decisions` | Get all AI decisions |
 | GET | `/api/agent/explain` | Get AI explainability |
+| POST | `/api/agent/treasury/create` | Create autonomous treasury |
+| GET | `/api/agent/treasury/status` | Get autonomous treasury state |
 
-### Portfolio Routes
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/portfolio/:accountId` | Get portfolio overview |
-| GET | `/api/portfolio/:accountId/risk` | Get risk analysis |
-| GET | `/api/portfolio/:accountId/history` | Get portfolio history |
-
-### Hedera Routes
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/hedera/prices` | Get token prices |
-| GET | `/api/hedera/market` | Get market data |
-| POST | `/api/hedera/transfer/hbar` | Transfer HBAR |
-| POST | `/api/hedera/transfer/token` | Transfer tokens |
+### Notes
+- Legacy routes may still exist in codebase, but AURA-T demo flow centers on `/api/agent/treasury/*`.
 
 ## 🎯 Features in Detail
 
@@ -252,19 +302,15 @@ Agent runs continuously, monitoring market conditions, adapting strategy, and pr
 - Neural network patterns
 - Glassmorphism transitions
 
-## 🏆 Why AURA Wins
+## 🏆 Why AURA-T Is Competitive
 
-✅ **Innovation** - First autonomous AI portfolio manager on Hedera
+✅ **Autonomy** - End-to-end treasury loop with adaptive mode switching
 
-✅ **Execution** - Clean code, modern stack, production-ready
+✅ **Economic Soundness** - Reserve logic + capital efficiency + drawdown framing
 
-✅ **Hedera Integration** - Deep integration with HTS, HCS, Smart Contracts
+✅ **Transparency** - Decision hash logging and explainable outputs
 
-✅ **Real-world Value** - Solves real problems for crypto investors
-
-✅ **AI Agent Behavior** - Truly autonomous decision-making
-
-✅ **Demo Appeal** - Stunning visuals, live functionality
+✅ **Real-World Use Case** - DAO/startup treasury operations for stable capital
 
 ## 📄 License
 
@@ -280,9 +326,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**Built with 💙 for the Hedera Ecosystem**
-
-[Website](https://aura.app) • [Documentation](https://docs.aura.app) • [Twitter](https://twitter.com/aurahedera)
+**AURA-T: Autonomous Stable Treasury Agent for USD₮ & XAU₮**
 
 </div>
-AURA : Autonomous Unified Resource Agent AI agent that autonomously manages, optimizes, and protects your crypto portfolio on Hedera.
