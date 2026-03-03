@@ -90,11 +90,46 @@ export interface WalletConnection {
   isConnected: boolean
   accountId: string
   network: 'mainnet' | 'testnet'
-  provider: 'hashpack' | 'metamask' | 'xverse'
+  provider: 'metamask' | 'xverse'
   publicKey?: string
   balance?: {
     hbar: number
     tokens: TokenBalance[]
+  }
+}
+
+export interface AgentWalletProfile {
+  type: 'WDK_AGENT_WALLET'
+  walletId: string
+  walletAddress: string
+}
+
+export interface AutonomousTreasury {
+  treasuryId: string
+  createdAt: string
+  status: 'inactive' | 'active'
+  userWalletAccountId: string | null
+  agentWallet: AgentWalletProfile
+  capital: {
+    asset: 'USDT'
+    deposited: number
+    usdtReserve: number
+    xautHedge: number
+    yieldDeployed: number
+  }
+  autonomyState: {
+    mode: 'Observe-Evaluate-Plan-Execute-Log-Adapt'
+    isAutonomous: boolean
+  }
+  analytics: {
+    mode: 'SAFE' | 'YIELD' | 'HEDGE'
+    stableReservePercent: number
+    deployedCapitalPercent: number
+    expectedReturnPercent: number
+    worstCaseDrawdownPercent: number
+    capitalEfficiencyPercent: number
+    lastDecisionHash: string
+    worstCaseExposurePercent: number
   }
 }
 
