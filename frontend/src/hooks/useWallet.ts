@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { BrowserProvider, formatEther } from 'ethers'
 import { WalletConnection, TokenBalance } from '@/types'
+import { SEPOLIA_CHAIN_ID_HEX } from '@/lib/contracts'
 
 interface UseWalletReturn {
   wallet: WalletConnection | null
@@ -50,8 +52,20 @@ export function useWallet(): UseWalletReturn {
 
       const accountId = accounts[0]
 
+      const chainId = (await window.ethereum.request({ method: 'eth_chainId' })) as string
+      if (chainId?.toLowerCase() !== SEPOLIA_CHAIN_ID_HEX) {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: SEPOLIA_CHAIN_ID_HEX }]
+        })
+      }
+
+      const providerObj = new BrowserProvider(window.ethereum as any)
+      const balanceWei = await providerObj.getBalance(accountId)
+      const ethBalance = Number(formatEther(balanceWei))
+
       const balance: { hbar: number; tokens: TokenBalance[] } = {
-        hbar: 0,
+        hbar: ethBalance,
         tokens: []
       }
 
@@ -77,7 +91,21 @@ export function useWallet(): UseWalletReturn {
   }, [])
 
   const refreshBalance = useCallback(async () => {
-    return
+    if (!wallet?.accountId || typeof window === 'undefined' || !window.ethereum) {
+      return
+    }
+
+    const providerObj = new BrowserProvider(window.ethereum as any)
+    const balanceWei = await providerObj.getBalance(wallet.accountId)
+    const ethBalance = Number(formatEther(balanceWei))
+
+    setWallet(prev => prev ? {
+      ...prev,
+      balance: {
+        hbar: ethBalance,
+        tokens: prev.balance?.tokens || []
+      }
+    } : null)
   }, [wallet?.accountId])
 
   const signTransaction = useCallback(async (transactionData: any): Promise<{ success: boolean; transactionId?: string; error?: string }> => {

@@ -7,6 +7,7 @@ import AIAgentStatus from '@/components/dashboard/AIAgentStatus'
 import AssetTable from '@/components/dashboard/AssetTable'
 import AIActionsHistory from '@/components/dashboard/AIActionsHistory'
 import AIExplainability from '@/components/dashboard/AIExplainability'
+import ExecuteRebalance from '@/components/dashboard/ExecuteRebalance'
 import DashboardBackground from '@/components/dashboard/DashboardBackground'
 import WalletConnectionModal from '@/components/wallet/WalletConnectionModal'
 import { useWallet } from '@/hooks/useWallet'
@@ -200,6 +201,13 @@ export default function Dashboard() {
               isConnected={wallet?.isConnected || false}
               accountId={wallet?.accountId}
               onExecute={signTransaction}
+            />
+          </div>
+
+          <div className="mb-6">
+            <ExecuteRebalance
+              isConnected={wallet?.isConnected || false}
+              userAddress={wallet?.accountId}
             />
           </div>
           
