@@ -1,7 +1,46 @@
 import { Router, Request, Response } from 'express';
 import { AIAgentService } from '../services/AIAgentService';
+import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 
 const router = Router();
+
+type TreasuryStatus = 'inactive' | 'active';
+
+interface AutonomousTreasury {
+  treasuryId: string;
+  createdAt: string;
+  status: TreasuryStatus;
+  userWalletAccountId: string | null;
+  agentWallet: {
+    type: 'WDK_AGENT_WALLET';
+    walletId: string;
+    walletAddress: string;
+  };
+  capital: {
+    asset: 'USDT';
+    deposited: number;
+    usdtReserve: number;
+    xautHedge: number;
+    yieldDeployed: number;
+  };
+  autonomyState: {
+    mode: 'Observe-Evaluate-Plan-Execute-Log-Adapt';
+    isAutonomous: boolean;
+  };
+  analytics: {
+    mode: 'SAFE' | 'YIELD' | 'HEDGE';
+    stableReservePercent: number;
+    deployedCapitalPercent: number;
+    expectedReturnPercent: number;
+    worstCaseDrawdownPercent: number;
+    capitalEfficiencyPercent: number;
+    lastDecisionHash: string;
+    worstCaseExposurePercent: number;
+  };
+}
+
+let activeTreasury: AutonomousTreasury | null = null;
 
 /**
  * Get AI agent status
@@ -152,6 +191,88 @@ router.get('/explain', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error getting explanation:', error);
     res.status(500).json({ error: 'Failed to get explanation' });
+  }
+});
+
+router.post('/treasury/create', async (req: Request, res: Response) => {
+  try {
+    const { userWalletAccountId, depositAmount } = req.body as {
+      userWalletAccountId?: string;
+      depositAmount?: number;
+    };
+
+    const normalizedDeposit = typeof depositAmount === 'number' ? depositAmount : 10000;
+    if (!Number.isFinite(normalizedDeposit) || normalizedDeposit <= 0) {
+      return res.status(400).json({ error: 'depositAmount must be a positive number' });
+    }
+
+    const treasuryId = `treasury-${uuidv4().slice(0, 8)}`;
+    const walletId = `wdk-${uuidv4().slice(0, 12)}`;
+    const walletAddress = `wdk-agent-${uuidv4().replace(/-/g, '').slice(0, 24)}`;
+    const usdtReserve = normalizedDeposit * 0.3;
+    const xautHedge = normalizedDeposit * 0.25;
+    const yieldDeployed = normalizedDeposit - usdtReserve - xautHedge;
+    const lastDecisionHash = crypto
+      .createHash('sha256')
+      .update(JSON.stringify({ treasuryId, normalizedDeposit, createdAt: Date.now() }))
+      .digest('hex');
+
+    activeTreasury = {
+      treasuryId,
+      createdAt: new Date().toISOString(),
+      status: 'active',
+      userWalletAccountId: userWalletAccountId || null,
+      agentWallet: {
+        type: 'WDK_AGENT_WALLET',
+        walletId,
+        walletAddress,
+      },
+      capital: {
+        asset: 'USDT',
+        deposited: normalizedDeposit,
+        usdtReserve,
+        xautHedge,
+        yieldDeployed,
+      },
+      autonomyState: {
+        mode: 'Observe-Evaluate-Plan-Execute-Log-Adapt',
+        isAutonomous: true,
+      },
+      analytics: {
+        mode: 'YIELD',
+        stableReservePercent: 30,
+        deployedCapitalPercent: 70,
+        expectedReturnPercent: 7.2,
+        worstCaseDrawdownPercent: -6,
+        capitalEfficiencyPercent: 7.2,
+        lastDecisionHash,
+        worstCaseExposurePercent: -8,
+      },
+    };
+
+    const aiAgent: AIAgentService = req.app.get('aiAgent');
+    if (!aiAgent.getStatus().isActive) {
+      aiAgent.start();
+    }
+
+    res.json({
+      message: 'Autonomous treasury created. Agent wallet is now managing capital.',
+      treasury: activeTreasury,
+    });
+  } catch (error) {
+    console.error('Error creating autonomous treasury:', error);
+    res.status(500).json({ error: 'Failed to create autonomous treasury' });
+  }
+});
+
+router.get('/treasury/status', async (_req: Request, res: Response) => {
+  try {
+    res.json({
+      treasury: activeTreasury,
+    });
+  } catch (error) {
+    console.error('Error getting treasury status:', error);
+    res.status(500).json({ error: 'Failed to get treasury status' });
   }
 });
 
