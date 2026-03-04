@@ -72,6 +72,7 @@ export default function PortfolioOverview({ isConnected, treasury }: PortfolioOv
         <div>
           <h2 className="text-xl font-semibold text-white">Treasury Overview</h2>
           <p className="text-sm text-dark-400 mt-1">Autonomous Stable Treasury Agent for USD₮ & XAU₮</p>
+          <p className="text-xs text-dark-500 mt-1">Sepolia demo assets: MockUSDT / MockXAUT</p>
         </div>
       </div>
 
