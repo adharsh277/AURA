@@ -4,7 +4,7 @@
 
 ![AURA Logo](https://img.shields.io/badge/AURA--T-Stable%20Treasury%20Agent-00D1FF?style=for-the-badge&logo=robot&logoColor=white)
 
-**Autonomous Stable Treasury Agent for USD₮ & XAU₮**
+**Autonomous Stable Treasury Agent for USD₮ & XAU₮ (mock on Sepolia)**
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://typescriptlang.org)
@@ -15,7 +15,7 @@
 
 ## 🚀 Overview
 
-AURA-T is an autonomous stable treasury agent managing USD₮ and XAU₮ capital.
+AURA-T is an autonomous stable treasury agent managing USD₮ and XAU₮ capital (mock assets on Sepolia).
 It continuously observes market conditions, evaluates risk-adjusted yield opportunities, dynamically allocates capital between yield, hedge, and safe modes, and logs decisions on-chain for transparency.
 The agent maintains a stable reserve threshold, enforces capital preservation rules, and adapts strategies without manual intervention.
 Designed for DAO treasuries, startups, and on-chain capital managers.
@@ -23,7 +23,7 @@ Designed for DAO treasuries, startups, and on-chain capital managers.
 ### ✨ Key Features
 
 - **🤖 Autonomous Agent Loop** - Observe → Evaluate → Plan → Execute → Log → Adapt
-- **💰 Stable Treasury Accounting** - USD₮ reserve, XAU₮ hedge, yield deployment buckets
+- **💰 Stable Treasury Accounting** - USD₮ reserve, XAU₮ hedge, yield deployment buckets (mock on Sepolia)
 - **🧠 Economic Explainability** - Expected return, capital efficiency, drawdown visibility
 - **🛡️ Safety Guardrails** - Never exceed treasury capital; deterministic fallback to safe allocation
 - **🔐 Wallet Architecture** - Optional user wallet + primary WDK-style agent wallet flow
@@ -69,8 +69,8 @@ AURA-T operates through an autonomous loop:
 	- `POST /api/agent/treasury/autonomy`
 	- `POST /api/agent/treasury/stress-test`
 - Treasury payload now includes:
-	- USD₮ reserve
-	- XAU₮ hedge
+	- USD₮ reserve (mock on Sepolia)
+	- XAU₮ hedge (mock on Sepolia)
 	- yield deployed
 	- autonomy level (`SUPERVISED` / `FULL_AUTONOMOUS`)
 	- mode (`SAFE` / `YIELD` / `HEDGE`)
@@ -385,6 +385,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**AURA-T: Autonomous Stable Treasury Agent for USD₮ & XAU₮**
+**AURA-T: Autonomous Stable Treasury Agent for USD₮ & XAU₮ (mock on Sepolia)**
 
 </div>
