@@ -29,6 +29,19 @@ Designed for DAO treasuries, startups, and on-chain capital managers.
 - **🔐 Wallet Architecture** - Optional user wallet + primary WDK-style agent wallet flow
 - **🧾 Transparent Decision Proofs** - SHA-256 decision hashes surfaced in the UI
 
+## 🤖 Agent Autonomy
+
+AURA-T operates through an autonomous loop:
+
+- **Observe** → Market conditions, volatility, treasury balances
+- **Evaluate** → Risk engine computes risk score
+- **Plan** → Strategy engine selects SAFE / YIELD / HEDGE mode
+- **Execute** → Treasury rebalance transaction prepared
+- **Log** → Decision hash stored and surfaced in UI
+- **Adapt** → Memory updated for next cycle
+
+> Note: On Sepolia, the demo uses mock assets (`MockUSDT` / `MockXAUT`) to simulate USD₮ and XAU₮ behavior.
+
 ## ✅ What We Updated Till Now
 
 ### Backend (Implemented)
@@ -195,7 +208,7 @@ AURA/
 │   │   │   └── WebSocketService.ts
 │   │   └── index.ts         # Server entry point
 │   ├── contracts/           # Solidity smart contracts
-│   │   └── AURAPortfolioManager.sol
+│   │   └── TreasuryVault.sol
 │   └── package.json
 │
 └── README.md
