@@ -87,7 +87,9 @@ export function useTreasury(userAddress?: string) {
       const raw = (err as Error).message || 'Rebalance failed'
       const normalized = raw.includes('onlyAgent')
         ? 'Rebalance reverted: connected wallet is not TreasuryVault agent (onlyAgent).'
-        : raw
+        : raw.includes('Yield disabled in SAFE mode')
+          ? 'Yield deployment disabled while SAFE mode is active.'
+          : raw
 
       setError(normalized)
       return { success: false as const, error: normalized }
