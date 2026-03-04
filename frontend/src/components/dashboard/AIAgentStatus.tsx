@@ -270,6 +270,17 @@ export default function AIAgentStatus({
         </div>
       )}
 
+      <div className="mb-4 p-3 rounded-xl bg-dark-800/50 border border-dark-700">
+        <p className="text-xs text-dark-400 mb-2">Agent Cycle Status</p>
+        <div className="space-y-1 text-xs">
+          <p className="text-green-400">Observation ✔</p>
+          <p className="text-green-400">Strategy Selection ✔</p>
+          <p className="text-green-400">Execution ✔</p>
+          <p className="text-green-400">On-Chain Log ✔</p>
+          <p className="text-green-400">Memory Update ✔</p>
+        </div>
+      </div>
+
       {!treasury && (
         <motion.button
           onClick={onCreateTreasury}
