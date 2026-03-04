@@ -168,6 +168,14 @@ export default function Dashboard() {
         
         {/* Dashboard Grid */}
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          {treasury?.analytics.mode === 'SAFE' && (
+            <div className="mb-6 rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-3">
+              <p className="text-sm font-semibold text-amber-400">🔒 SAFE MODE ACTIVE</p>
+              <p className="text-xs text-amber-200">Capital protection triggered by risk engine.</p>
+              <p className="text-xs text-amber-200">Yield strategies temporarily paused.</p>
+            </div>
+          )}
+
           {/* Top Section */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
             {/* Treasury Overview - Takes 2 columns */}
@@ -208,6 +216,7 @@ export default function Dashboard() {
             <ExecuteRebalance
               isConnected={wallet?.isConnected || false}
               userAddress={wallet?.accountId}
+              mode={treasury?.analytics.mode}
             />
           </div>
           
